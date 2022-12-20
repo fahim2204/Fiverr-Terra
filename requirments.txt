@@ -1,0 +1,7 @@
+I must create a digital publishing application (blog, forum, or portfolio) with NEXT JS and TAILWIND CSS and with a minimal set of features:
+
+Authenticate users using an external provider with OAuth2.
+Navigate through authenticated user articles and comments, and manage them.
+Comment on other user's articles.
+Edit and remove his articles and comments.
+Display the user profile and modify his settings.
