@@ -65,34 +65,72 @@ ul.suggestion-box li:hover {
     cursor: pointer;
 }
 
-.radio-cont {
+.radio-cont label {
+    display: flex;
+    cursor: pointer;
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(209, 213, 219, 1);
+    border-bottom: none;
+    user-select: none;
+}
+
+.radio-cont label>div {
     display: flex;
     align-items: center;
-    border-bottom: 1px solid rgba(182, 182, 182, 0.493);
-    padding: 15px 0;
+    padding: 10px 12px;
+    transition: 0.25s ease;
+    width: 100%;
 }
 
-.radio-cont label {
-    padding-left: 10px;
-    user-select: none;
-    cursor: pointer;
+.radio-cont label:nth-child(1) {
+    border-radius: 10px 10px 0 0;
 }
 
-.feed-emo {
-    border-radius: 4px;
-    /* height: 60px;
-    width: 110px; */
-    /* display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center; */
-    cursor: pointer;
+.radio-cont label:nth-last-child(1) {
+    border-radius: 0 0 10px 10px;
+    border-bottom: 1px solid rgba(209, 213, 219, 1);
 }
 
-#feed-cat-1:checked~.feed-emo-1,
-#feed-cat-2:checked~.feed-emo-2,
-#feed-cat-3:checked~.feed-emo-3 {
-    background-color: var(--cam-dark-light);
-    border: 1px solid var(--cam-primary);
-    box-shadow: 0 0 10px 0px var(--cam-primary);
+.radio-cont label>div>div {
+    display: flex;
+    flex-direction: column;
+}
+
+.radio-cont label>div>div small {
+    font-size: 0.7em !important;
+}
+
+.radio-cont label>div:hover {
+    background-color: rgba(209, 213, 219, 1);
+}
+
+.radio-cont label>div:before {
+    display: flex;
+    flex-shrink: 0;
+    content: "";
+    background-color: #fff;
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    margin-right: 0.6em;
+    transition: 0.25s ease;
+    box-shadow: inset 0 0 0 0.02em #00005c;
+}
+
+.radio-cont label input {
+    display: none;
+    width: 100%;
+}
+
+.radio-cont label input:checked+div {
+    background-color: rgba(236, 253, 245, 1);
+    border: 1px solid rgba(167, 243, 208, 1);
+    width: 100%;
+    display: flex;
+}
+
+.radio-cont label input:checked+div:before {
+    box-shadow: inset 0 0 0 0.3em rgb(43, 150, 100);
 }

@@ -1,5 +1,6 @@
 import '../styles/globals.css'
 import "bootstrap/dist/css/bootstrap.css";
+import 'react-calendar/dist/Calendar.css';
 import {useEffect} from "react";
 
 

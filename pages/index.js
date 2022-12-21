@@ -4,8 +4,42 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Dropzone from "react-dropzone";
+import { FaTrashAlt } from "react-icons/fa";
+import { HiOutlineOfficeBuilding } from "react-icons/hi"
+import Calendar from 'react-calendar';
 
 export default function Home() {
+
+  //Calenders
+  const [value, onChange] = useState(new Date());
+
+  // Use the useState hook to create a state variable called "inputFields"
+  // and a function to update it called "setInputFields"
+  const [inputFields, setInputFields] = useState([{ value: "" }]);
+
+  // Function to handle the addition of a new input field
+  const handleAddInputField = () => {
+    setInputFields([...inputFields, { value: "" }]);
+  }
+
+  // Function to handle the deletion of an input field
+  const handleDeleteInputField = (index) => {
+    const newInputFields = [...inputFields];
+    newInputFields.splice(index, 1);
+    setInputFields(newInputFields);
+  }
+
+  // Function to handle the change of an input field's value
+  const handleInputFieldChange = (index, event) => {
+    const newInputFields = [...inputFields];
+    newInputFields[index].value = event.target.value;
+    setInputFields(newInputFields);
+  }
+
+
+
+
+  const totalStep = 7;
   const [formStep, setFormStep] = useState(1);
   const [formQues, setFormQues] = useState(1);
   const [companyDetails, setCompanyDetails] = useState([]);
@@ -27,7 +61,7 @@ export default function Home() {
           console.log("setProfile", x.data);
           setCompanyDetails(x.data);
         })
-        .catch(() => {});
+        .catch(() => { });
     }
   };
   const selectCompany = (item) => {
@@ -51,6 +85,15 @@ export default function Home() {
   const handleForth = () => {
     setFormStep(5);
   };
+  const handleFifth = () => {
+    setFormStep(6);
+  };
+  const handleSixth = () => {
+    setFormStep(7);
+  };
+  const handleSeventh = () => {
+    setFormStep(8);
+  };
   const handleFromData = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -64,7 +107,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <div style={{ "--progessWidth": `${formStep * 20}%` }} className="progess-bar"></div>
+        <div style={{ "--progessWidth": `${formStep * (100 / totalStep)}%` }} className="progess-bar"></div>
         <nav class="border-bottom py-2">
           <Link href="/" className="fw-bold fs-3 px-2">
             Terra
@@ -110,9 +153,8 @@ export default function Home() {
                       </label>
                       <input
                         type="text"
-                        class={`form-control ${
-                          formData["companyName"] === "" ? "is-invalid" : "is-valid"
-                        }`}
+                        class={`form-control ${formData["companyName"] === "" ? "is-invalid" : "is-valid"
+                          }`}
                         name="companyName"
                         onChange={(e) => {
                           fetchCompanyDetails(e);
@@ -137,7 +179,13 @@ export default function Home() {
                                   selectCompany(item);
                                 }}
                               >
-                                {item.raisonSociale}
+                                <div className="d-flex justify-content-between align-items-center">
+                                  <div className="fw-bold"><HiOutlineOfficeBuilding className="me-2 fs-4"/>{item.raisonSociale}</div>
+                                  <div className="d-flex flex-column align-items-end">
+                                    <small>{item.siren.libelle}</small>
+                                    <small className="text-danger">{item.codeNaf}</small>
+                                  </div>
+                                </div>
                               </li>
                             </>
                           );
@@ -162,8 +210,8 @@ export default function Home() {
                     <p className="fs-4 fw-bold">
                       Merci de nous confirmer la nature de votre structure
                     </p>
-                    <div className="d-flex flex-column">
-                      <div className="radio-cont">
+                    <div className="radio-cont d-flex flex-column">
+                      <label htmlFor="st-1">
                         <input
                           type="radio"
                           name="structure"
@@ -172,15 +220,16 @@ export default function Home() {
                           checked={formData["structure"] === "Une entreprise privée"}
                           onChange={(e) => handleFromData(e)}
                         />
-                        <label htmlFor="st-1" className="feed-emo-1">
-                          Une entreprise privée
-                          <br />
-                          <small>
-                            (TPE, artisans et commergants, PME, PMI, ETI et grandes entreprises)
-                          </small>
-                        </label>
-                      </div>
-                      <div className="radio-cont">
+                        <div>
+                          <div>
+                            Une entreprise privée
+                            <small>
+                              (TPE, artisans et commergants, PME, PMI, ETI et grandes entreprises)
+                            </small>
+                          </div>
+                        </div>
+                      </label>
+                      <label htmlFor="st-2">
                         <input
                           type="radio"
                           name="structure"
@@ -191,11 +240,9 @@ export default function Home() {
                           }
                           onChange={(e) => handleFromData(e)}
                         />
-                        <label htmlFor="st-2" className="feed-emo-1">
-                          Un gestionnaire ou syndic de copropriété
-                        </label>
-                      </div>
-                      <div className="radio-cont">
+                        <div>Un gestionnaire ou syndic de copropriété</div>
+                      </label>
+                      <label htmlFor="st-3">
                         <input
                           type="radio"
                           name="structure"
@@ -206,11 +253,9 @@ export default function Home() {
                           }
                           onChange={(e) => handleFromData(e)}
                         />
-                        <label htmlFor="st-3" className="feed-emo-1">
-                          Une collectivité ou un acheteur public
-                        </label>
-                      </div>
-                      <div className="radio-cont">
+                        <div>Une collectivité ou un acheteur public</div>
+                      </label>
+                      <label htmlFor="st-4">
                         <input
                           type="radio"
                           name="structure"
@@ -219,11 +264,9 @@ export default function Home() {
                           checked={formData["structure"] === "Une association loi 1901"}
                           onChange={(e) => handleFromData(e)}
                         />
-                        <label htmlFor="st-4" className="feed-emo-1">
-                          Une association loi 1901
-                        </label>
-                      </div>
-                      <div className="radio-cont">
+                        <div>Une association loi 1901</div>
+                      </label>
+                      <label htmlFor="st-5">
                         <input
                           type="radio"
                           name="structure"
@@ -232,10 +275,8 @@ export default function Home() {
                           checked={formData["structure"] === "Un organisme religieux"}
                           onChange={(e) => handleFromData(e)}
                         />
-                        <label htmlFor="st-5" className="feed-emo-1">
-                          Un organisme religieux
-                        </label>
-                      </div>
+                        <div> Un organisme religieux</div>
+                      </label>
                     </div>
                     <div className="d-flex justify-content-between">
                       <button
@@ -260,8 +301,8 @@ export default function Home() {
                     <p className="fs-4 fw-bold">
                       Pour quel type d'énergie souhaitez-vous comparer les offres?
                     </p>
-                    <div className="d-flex flex-column">
-                      <div className="radio-cont">
+                    <div className="radio-cont d-flex flex-column">
+                      <label htmlFor="enr-1">
                         <input
                           type="radio"
                           name="energy"
@@ -270,13 +311,14 @@ export default function Home() {
                           checked={formData["energy"] === "Electricité"}
                           onChange={(e) => handleFromData(e)}
                         />
-                        <label htmlFor="enr-1" className="feed-emo-1">
-                          Electricité
-                          <br />
-                          <small>(Ma demande concerne uniquement des compteurs éléctriques)</small>
-                        </label>
-                      </div>
-                      <div className="radio-cont">
+                        <div>
+                          <div>
+                            Electricité
+                            <small>(Ma demande concerne uniquement des compteurs éléctriques)</small>
+                          </div>
+                        </div>
+                      </label>
+                      <label htmlFor="enr-2">
                         <input
                           type="radio"
                           name="energy"
@@ -285,13 +327,13 @@ export default function Home() {
                           checked={formData["energy"] === "Gaz naturel"}
                           onChange={(e) => handleFromData(e)}
                         />
-                        <label htmlFor="enr-2" className="feed-emo-1">
-                          Gaz naturel
-                          <br />
-                          <small>(Ma demande concerne uniquement des compteurs de gaz)</small>
-                        </label>
-                      </div>
-                      <div className="radio-cont">
+                        <div>
+                          <div>Gaz naturel
+                            <small>(Ma demande concerne uniquement des compteurs de gaz)</small>
+                          </div>
+                        </div>
+                      </label>
+                      <label htmlFor="enr-3">
                         <input
                           type="radio"
                           name="energy"
@@ -300,12 +342,12 @@ export default function Home() {
                           checked={formData["energy"] === "Electricité & Gaz naturel"}
                           onChange={(e) => handleFromData(e)}
                         />
-                        <label htmlFor="enr-3" className="feed-emo-1">
-                          Electricité & Gaz naturel
-                          <br />
-                          <small>(Ma demande concerne des compteurs éléctriques et de gaz)</small>
-                        </label>
-                      </div>
+                        <div>
+                          <div>Electricité & Gaz naturel
+                            <small>(Ma demande concerne des compteurs éléctriques et de gaz)</small>
+                          </div>
+                        </div>
+                      </label>
                     </div>
 
                     <div className="d-flex justify-content-between">
@@ -367,8 +409,8 @@ export default function Home() {
                     <p className="fs-4 fw-bold">
                       Merci de nous indiquer la raison de cette mise en concurrence énergie
                     </p>
-                    <div className="d-flex flex-column">
-                      <div className="radio-cont">
+                    <div className="radio-cont d-flex flex-column">
+                      <label htmlFor="res-2">
                         <input
                           type="radio"
                           name="reason"
@@ -379,17 +421,18 @@ export default function Home() {
                           }
                           onChange={(e) => handleFromData(e)}
                         />
-                        <label htmlFor="res-2" className="feed-emo-1">
-                          Changement de fournisseur sur le site actuel
-                          <br />
-                          <small>
-                            (Vous souhaitez mettre en concurrence le fournisseur qui fournit
-                            l'électricité etiou le gaz naturel du site dans lequel vous exercez
-                            actuellement votre activité professionnelle.)
-                          </small>
-                        </label>
-                      </div>
-                      <div className="radio-cont">
+                        <div>
+                          <div>
+                            Changement de fournisseur sur le site actuel
+                            <small>
+                              (Vous souhaitez mettre en concurrence le fournisseur qui fournit
+                              l'électricité etiou le gaz naturel du site dans lequel vous exercez
+                              actuellement votre activité professionnelle.)
+                            </small>
+                          </div>
+                        </div>
+                      </label>
+                      <label htmlFor="res-3">
                         <input
                           type="radio"
                           name="reason"
@@ -401,18 +444,19 @@ export default function Home() {
                           }
                           onChange={(e) => handleFromData(e)}
                         />
-                        <label htmlFor="res-3" className="feed-emo-1">
-                          Emménagement sur un nouveau site (compteur existant)
-                          <br />
-                          <small>
-                            (Vous emménagez sur un site professionnel déjä équipé d'un compteur
-                            électricité effou gaz naturel- Ce ou ces compteurs ont déjä un
-                            historique de consommation relatif au précédent locataire ou
-                            propriétaire du site.)
-                          </small>
-                        </label>
-                      </div>
-                      <div className="radio-cont">
+                        <div>
+                          <div>
+                            Emménagement sur un nouveau site (compteur existant)
+                            <small>
+                              (Vous emménagez sur un site professionnel déjä équipé d'un compteur
+                              électricité effou gaz naturel- Ce ou ces compteurs ont déjä un
+                              historique de consommation relatif au précédent locataire ou
+                              propriétaire du site.)
+                            </small>
+                          </div>
+                        </div>
+                      </label>
+                      <label htmlFor="res-1">
                         <input
                           type="radio"
                           name="reason"
@@ -424,17 +468,18 @@ export default function Home() {
                           }
                           onChange={(e) => handleFromData(e)}
                         />
-                        <label htmlFor="res-1" className="feed-emo-1">
-                          Emménagement sur un nouveau site (compteur neuf)
-                          <br />
-                          <small>
-                            (Vous emménagez sur un site professionnel entiérement neuf n'ayant aucun
-                            historique de consommation d'énergie. Le ou les compteurs viennent
-                            d'étre mis en service par le gestionnaire de réseau, vous étes en
-                            possession d'un consuel.)
-                          </small>
-                        </label>
-                      </div>
+                        <div>
+                          <div>
+                            Emménagement sur un nouveau site (compteur neuf)
+                            <small>
+                              (Vous emménagez sur un site professionnel entiérement neuf n'ayant aucun
+                              historique de consommation d'énergie. Le ou les compteurs viennent
+                              d'étre mis en service par le gestionnaire de réseau, vous étes en
+                              possession d'un consuel.)
+                            </small>
+                          </div>
+                        </div>
+                      </label>
                     </div>
 
                     <div className="d-flex justify-content-between">
@@ -444,7 +489,235 @@ export default function Home() {
                       >
                         Previous
                       </button>
-                      <button className="btn btn-dark py-1 mt-3" onClick={() => handleSecond()}>
+                      <button className="btn btn-dark py-1 mt-3" onClick={() => handleFifth()}>
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+            {/* //--- STEP-6 */}
+            {formStep === 6 && (
+              <>
+                <div className="col-sm-12 col-md-10 col-lg-8">
+                  <div className="main-card border shadow-sm rounded p-4">
+                    <p className="fs-4 fw-bold">
+                      Merci de préciser le périmètre de votre comparaison
+                    </p>
+                    <p className="fs-5 fw-bold mb-1">
+                      Vos compteurs électriques
+                    </p>
+
+                    <div>
+                      {
+                        inputFields.map((inputField, index) => (
+                          <>
+                            <p className="fs-6 mb-0 fw-bold">
+                              <small>Numéro de PDL (ou RAE)</small>
+                            </p>
+                            <div className="d-flex mb-2" key={index}>
+                              <input
+                                type="text"
+                                className="form-control form-control-sm me-2"
+                                value={inputField.value}
+                                onChange={(event) => handleInputFieldChange(index, event)}
+                              />
+                              <button className="btn btn-sm" type="button" onClick={() => handleDeleteInputField(index)}><FaTrashAlt /></button>
+                            </div>
+                          </>
+                        ))
+                      }
+                      <div className="text-center">
+                        <button className="btn btn-sm btn-outline-secondary rounded-pill text-black" type="button" onClick={handleAddInputField}><span className="mx-2">+</span>Ajouter un compteur</button></div>
+                    </div>
+                    <p className="fs-5 fw-bold mb-1 mt-4">
+                      Vos compteurs de gaz naturel
+                    </p>
+
+                    <div>
+                      {
+                        inputFields.map((inputField, index) => (
+                          <>
+                            <p className="fs-6 mb-0 fw-bold">
+                              <small>Numéro de PDL (ou RAE)</small>
+                            </p>
+                            <div className="d-flex mb-2" key={index}>
+                              <input
+                                type="text"
+                                className="form-control form-control-sm me-2"
+                                value={inputField.value}
+                                onChange={(event) => handleInputFieldChange(index, event)}
+                              />
+                              <button className="btn btn-sm" type="button" onClick={() => handleDeleteInputField(index)}><FaTrashAlt /></button>
+                            </div>
+                          </>
+                        ))
+                      }
+                      <div className="text-center">
+                        <button className="btn btn-sm btn-outline-secondary rounded-pill text-black" type="button" onClick={handleAddInputField}><span className="mx-2">+</span>Ajouter un compteur</button></div>
+                    </div>
+
+
+                    <div className="d-flex justify-content-between">
+                      <button
+                        className="btn btn-light text-black py-1 mt-3 border"
+                        onClick={() => setFormStep(formStep - 1)}
+                      >
+                        Previous
+                      </button>
+                      <button className="btn btn-dark py-1 mt-3" onClick={() => handleSixth()}>
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+            {/* //--- STEP-7 */}
+            {formStep === 7 && (
+              <>
+                <div className="col-sm-12 col-md-10 col-lg-8">
+                  <div className="main-card border shadow-sm rounded p-4">
+                    <p className="fs-4 fw-bold">
+                      Informations de mise en service
+                    </p>
+                    <p className="fs-5 mb-2">
+                      Informations pour votre compteur électrique
+                    </p>
+                    <p className="mb-0 fw-bold">Puissance compteur éléctrique souhaitée</p>
+                    <div className="radio-cont d-flex flex-column">
+                      <label htmlFor="elec-2">
+                        <input
+                          type="radio"
+                          name="electricity"
+                          id="elec-2"
+                          value="Bleu"
+                          checked={
+                            formData["electricity"] === "Bleu"
+                          }
+                          onChange={(e) => handleFromData(e)}
+                        />
+                        <div>
+                          <div>
+                            Bleu
+                            <small>
+                              BT Inférieur à 36kVA
+                            </small>
+                          </div>
+                        </div>
+                      </label>
+                      <label htmlFor="elec-3">
+                        <input
+                          type="radio"
+                          name="electricity"
+                          id="elec-3"
+                          value="Jaune"
+                          checked={
+                            formData["electricity"] ===
+                            "Jaune"
+                          }
+                          onChange={(e) => handleFromData(e)}
+                        />
+                        <div>
+                          <div>
+                            Jaune
+                            <small>
+                              BT Supérieur à 36kVA
+                            </small>
+                          </div>
+                        </div>
+                      </label>
+                      <label htmlFor="elec-1">
+                        <input
+                          type="radio"
+                          name="electricity"
+                          id="elec-1"
+                          value="Vert"
+                          checked={
+                            formData["electricity"] ===
+                            "Vert"
+                          }
+                          onChange={(e) => handleFromData(e)}
+                        />
+                        <div>
+                          <div>
+                            Vert
+                            <small>
+                              HTA
+                            </small>
+                          </div>
+                        </div>
+                      </label>
+                    </div>
+                    <p className="my-2 mt-4">Date de mise en service souhaitée des compteurs électriques</p>
+                    <Calendar className="w-100 rounded" onChange={onChange} value={value} />
+                    {/* -----------Natural Gas Section */}
+                    <p className="fs-5 mt-4 mb-2">
+                      Informations pour votre compteur gaz naturel
+                    </p>
+                    <p className="mb-0 fw-bold">Consommation Annuelle de référence éstimée</p>
+                    <div className="radio-cont d-flex flex-column">
+                      <label htmlFor="gas-2">
+                        <input
+                          type="radio"
+                          name="gas"
+                          id="gas-2"
+                          value="0 - 100 MWh/an"
+                          checked={
+                            formData["gas"] === "0 - 100 MWh/an"
+                          }
+                          onChange={(e) => handleFromData(e)}
+                        />
+                        <div>
+                          0 - 100 MWh/an
+                        </div>
+                      </label>
+                      <label htmlFor="gas-3">
+                        <input
+                          type="radio"
+                          name="gas"
+                          id="gas-3"
+                          value="100 Mwh - 20 GWh/an"
+                          checked={
+                            formData["gas"] ===
+                            "100 Mwh - 20 GWh/an"
+                          }
+                          onChange={(e) => handleFromData(e)}
+                        />
+                        <div>
+                          100 Mwh - 20 GWh/an
+                        </div>
+                      </label>
+                      <label htmlFor="gas-1">
+                        <input
+                          type="radio"
+                          name="gas"
+                          id="gas-1"
+                          value="Supérieur à 20 GWh/an"
+                          checked={
+                            formData["gas"] ===
+                            "Supérieur à 20 GWh/an"
+                          }
+                          onChange={(e) => handleFromData(e)}
+                        />
+                        <div>
+                         Supérieur à 20 GWh/an
+                        </div>
+                      </label>
+                    </div>
+                    <p className="my-2 mt-4">Date de mise en service souhaitée des compteurs électriques</p>
+                    <Calendar className="w-100 rounded" onChange={onChange} value={value} />
+
+
+                    <div className="d-flex justify-content-between">
+                      <button
+                        className="btn btn-light text-black py-1 mt-3 border"
+                        onClick={() => setFormStep(formStep - 1)}
+                      >
+                        Previous
+                      </button>
+                      <button className="btn btn-dark py-1 mt-3" onClick={() => handleSeventh()}>
                         Next
                       </button>
                     </div>
