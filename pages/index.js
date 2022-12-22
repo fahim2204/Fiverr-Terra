@@ -165,13 +165,13 @@ export default function Home() {
     }
   }
   const handleFirst = () => {
-    // if (formData['companyName'].length < 1 || formData['companyRegNo'].length < 1 || formData['companyAddress'].length < 1 ) {
-    //   setisError(true)
-    // } else {
-    //   setisError(false)
-    //   setFormStep(2);
-    // }
-    setFormStep(3);
+    if (formData['companyName'].length < 1 || formData['companyRegNo'].length < 1 || formData['companyAddress'].length < 1 ) {
+      setisError(true)
+    } else {
+      setisError(false)
+      setFormStep(2);
+    }
+    // setFormStep(3);
   };
   const handleSecond = () => {
     if (formData['structure'].length < 1) {
