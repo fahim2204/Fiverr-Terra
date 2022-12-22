@@ -165,3 +165,16 @@ ul.suggestion-box li:hover {
 .dropzone {
     border: 2px dashed rgba(209, 213, 219, 1);
 }
+
+.mid-text {
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px solid rgba(209, 213, 219, 1);
+    line-height: 0.1em;
+    margin: 10px 0 20px;
+}
+
+.mid-text span {
+    background: #fff;
+    padding: 0 10px;
+}

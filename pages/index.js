@@ -47,9 +47,12 @@ export default function Home() {
 
   const [formData, setFormData] = useState({
     companyName: "",
+    companySiren: "",
+    companyNaf: "",
     structure: "",
     energy: "",
   });
+  const [isError, setisError] = useState(false);
 
   const fetchCompanyDetails = async (e) => {
     let txt = e.target.value;
@@ -66,7 +69,7 @@ export default function Home() {
     }
   };
   const selectCompany = (item) => {
-    setFormData({ ...formData, companyName: item.raisonSociale });
+    setFormData({ ...formData, companyName: item.raisonSociale, companySiren: item.siren.libelle, companyNaf: item.codeNaf });
     setCompanyDetails([]);
   };
 
@@ -75,7 +78,12 @@ export default function Home() {
   }, [formData]);
 
   const handleFirst = () => {
-    setFormStep(2);
+    if (formData['companyName'].length < 1 || formData['companySiren'].length < 1 || formData['companyNaf'].length < 1) {
+      setisError(true)
+    } else {
+      setisError(false)
+      setFormStep(2);
+    }
   };
   const handleSecond = () => {
     setFormStep(3);
@@ -157,8 +165,7 @@ export default function Home() {
                       </label>
                       <input
                         type="text"
-                        class={`form-control ${formData["companyName"] === "" ? "is-invalid" : "is-valid"
-                          }`}
+                        class={`form-control ${isError ? "is-invalid " : ""} ${formData["companyName"].length >= 3 ? "is-valid" : ""} `}
                         name="companyName"
                         onChange={(e) => {
                           fetchCompanyDetails(e);
@@ -196,8 +203,21 @@ export default function Home() {
                         })}
                       </ul>
                     )}
+                    {formData["companyNaf"] !== "" && <>
+                      <div className="mid-text mt-4"><span className="fw-bold">Votre sélection</span></div>
+                      <div className="d-flex justify-content-between">
+                        <div className="d-flex flex-column">
+                          <div className="">Votre SIREN</div>
+                          <div className="text-success"><small className="fw-bold">{formData["companySiren"]}</small></div>
+                        </div>
+                        <div className="d-flex flex-column align-items-end">
+                          <div className="">Votre Code NAF</div>
+                          <div className="text-success"><small className="fw-bold">{formData["companyNaf"]}</small></div>
+                        </div>
 
-                    <div className="text-end">
+                      </div>
+                    </>}
+                    <div className="text-end mt-2">
                       <button className="btn btn-dark py-1 mt-3" onClick={() => handleFirst()}>
                         Start
                       </button>
@@ -385,7 +405,7 @@ export default function Home() {
                         {({ getRootProps, getInputProps }) => (
                           <div {...getRootProps()} className="dropzone p-4 rounded d-flex flex-column align-items-center cursor-pointer">
                             <input {...getInputProps()} />
-                            <FcAddImage className="fs-1"/>
+                            <FcAddImage className="fs-1" />
                             <p className="text-center text-primary opacity-75 mb-0">Téléverser ma facture d'électricité</p>
                             <p className="mb-0"><small>PNG, JPG, GIF, PDF jusqu'à 10MB</small></p>
                           </div>
@@ -399,7 +419,7 @@ export default function Home() {
                         {({ getRootProps, getInputProps }) => (
                           <div {...getRootProps()} className="dropzone p-4 rounded d-flex flex-column align-items-center cursor-pointer">
                             <input {...getInputProps()} />
-                            <FcAddImage className="fs-1"/>
+                            <FcAddImage className="fs-1" />
                             <p className="text-center text-primary opacity-75 mb-0">Téléverser ma facture de gaz naturel</p>
                             <p className="mb-0"><small>PNG, JPG, GIF, PDF jusqu'à 10MB</small></p>
                           </div>
