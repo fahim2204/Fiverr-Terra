@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Dropzone from "react-dropzone";
-import { FaTrashAlt } from "react-icons/fa";
+import { FaTrashAlt, FiDelete } from "react-icons/fa";
 import { HiOutlineOfficeBuilding } from "react-icons/hi"
-import { FcAddImage } from "react-icons/fc";
+import { FcAddImage, FcFile } from "react-icons/fc";
 import Calendar from 'react-calendar';
 
 export default function Home() {
@@ -21,29 +21,55 @@ export default function Home() {
   }, [gasDateValue])
 
 
-  // Use the useState hook to create a state variable called "inputFields"
-  // and a function to update it called "setInputFields"
-  const [inputFields, setInputFields] = useState([{ value: "" }]);
-
   // Function to handle the addition of a new input field
-  const handleAddInputField = () => {
-    setInputFields([...inputFields, { value: "" }]);
+  const handleAddInputField = (txt) => {
+    if (txt === "elec") {
+      setFormData({
+        ...formData,
+        electricMeterNo: [...formData.electricMeterNo, ""]
+      });
+    } else {
+      setFormData({
+        ...formData,
+        gasMeterNo: [...formData.gasMeterNo, ""]
+      });
+    }
   }
 
   // Function to handle the deletion of an input field
-  const handleDeleteInputField = (index) => {
-    const newInputFields = [...inputFields];
-    newInputFields.splice(index, 1);
-    setInputFields(newInputFields);
+  const handleDeleteInputField = (i, txt) => {
+    if (txt === "elec") {
+      setFormData({
+        ...formData,
+        electricMeterNo: [...formData.electricMeterNo.slice(0, i),
+        ...formData.electricMeterNo.slice(i + 1)]
+      });
+    }
+    else {
+      setFormData({
+        ...formData,
+        gasMeterNo: [...formData.gasMeterNo.slice(0, i),
+        ...formData.gasMeterNo.slice(i + 1)]
+      });
+    }
   }
 
   // Function to handle the change of an input field's value
-  const handleInputFieldChange = (index, event) => {
-    const newInputFields = [...inputFields];
-    newInputFields[index].value = event.target.value;
-    setInputFields(newInputFields);
+  const handleInputFieldChange = (i, event) => {
+    if (event.target.name === "electricPdl") {
+      setFormData({
+        ...formData, electricMeterNo: formData.electricMeterNo.map((item, index) =>
+          index === i ? event.target.value : item
+        )
+      });
+    } else {
+      setFormData({
+        ...formData, gasMeterNo: formData.gasMeterNo.map((item, index) =>
+          index === i ? event.target.value : item
+        )
+      });
+    }
   }
-
 
 
 
@@ -63,6 +89,8 @@ export default function Home() {
     gasDate: "",
     electricConsume: "",
     gasConsume: "",
+    electricMeterNo: [""],
+    gasMeterNo: [""],
     electricBillDoc: {
       docName: "",
       docData: "",
@@ -197,12 +225,56 @@ export default function Home() {
   };
   const handleSixth = () => {
     if (formData['reason'] === "Changement de fournisseur sur le site actuel") {
-      setFormStep(8);
-      setisError(false)
+      if (formData['energy'] === "Electricité & Gaz naturel") {
+        if (formData['electricMeterNo'][0].length < 1 || formData['gasMeterNo'][0].length < 1) {
+          setisError(true)
+        } else {
+          setFormStep(8);
+          setisError(false)
+        }
+      }
+      else if (formData['energy'] === "Gaz naturel") {
+        if (formData['electricMeterNo'][0].length < 1) {
+          setisError(true)
+        } else {
+          setFormStep(8);
+          setisError(false)
+        }
+      }
+      else {
+        if (formData['electricBillDoc']['docData'].length < 2) {
+          setisError(true)
+        } else {
+          setFormStep(8);
+          setisError(false)
+        }
+      }
     }
     else {
-      setisError(false)
-      setFormStep(7);
+      if (formData['energy'] === "Electricité & Gaz naturel") {
+        if (formData['electricMeterNo'][0].length < 1 || formData['gasMeterNo'][0].length < 1) {
+          setisError(true)
+        } else {
+          setFormStep(7);
+          setisError(false)
+        }
+      }
+      else if (formData['energy'] === "Gaz naturel") {
+        if (formData['electricMeterNo'][0].length < 1) {
+          setisError(true)
+        } else {
+          setFormStep(7);
+          setisError(false)
+        }
+      }
+      else {
+        if (formData['electricBillDoc']['docData'].length < 2) {
+          setisError(true)
+        } else {
+          setFormStep(7);
+          setisError(false)
+        }
+      }
     }
   };
   const handleSeventh = () => {
@@ -516,19 +588,32 @@ export default function Home() {
                       <>
                         <p className="mb-0 fw-bold"><small>Ma dernière facture d'électricité</small></p>
                         <div className="d-flex flex-column">
-                          {formData["electricBillDoc"]["docName"] !== "N/A" && <Dropzone onDrop={(file) => handleElectricBillDoc(file)}>
-                            {({ getRootProps, getInputProps }) => (
-                              <div {...getRootProps()} className="dropzone p-4 rounded d-flex flex-column align-items-center cursor-pointer">
-                                <input {...getInputProps()} />
-                                <FcAddImage className="fs-1" />
-                                <p className="text-center text-primary opacity-75 mb-0">Téléverser ma facture d'électricité</p>
-                                <p className="mb-0"><small>PNG, JPG, GIF, PDF jusqu'à 10MB</small></p>
-                              </div>
-                            )}
-                          </Dropzone>}
+                          {formData["electricBillDoc"]["docName"] !== "N/A" &&
+                            <>
+                              {formData["electricBillDoc"]["docName"].length < 3 ?
+                                <>
+                                  <Dropzone onDrop={(file) => handleElectricBillDoc(file)}>
+                                    {({ getRootProps, getInputProps }) => (
+                                      <div {...getRootProps()} className="dropzone p-4 rounded d-flex flex-column align-items-center cursor-pointer">
+                                        <input {...getInputProps()} />
+                                        <FcAddImage className="fs-1" />
+                                        <p className="text-center text-primary opacity-75 mb-0">Téléverser ma facture d'électricité</p>
+                                        <p className="mb-0"><small>PNG, JPG, GIF, PDF jusqu'à 10MB</small></p>
+                                      </div>
+                                    )}
+                                  </Dropzone>
+                                </> : <>
+                                  <div className="d-flex align-items-center my-2 ms-3 fw-semibold">
+                                    <FcFile className="fs-4 me-1" />
+                                    <small>{formData["electricBillDoc"]["docName"]}</small>
+                                  </div>
+                                </>
+                              }
+                            </>
+                          }
                           <div class="form-check mt-3">
                             <label class="form-check-label user-select-none" hmtlFor="noElecBill">
-                              <input className="form-check-input" type="checkbox" id="noElecBill" name="noElecBill"   checked={formData["electricBillDoc"]["docName"] === "N/A"} onChange={(e) => onChangeNoDoc(e)} />
+                              <input className="form-check-input" type="checkbox" id="noElecBill" name="noElecBill" checked={formData["electricBillDoc"]["docName"] === "N/A"} onChange={(e) => onChangeNoDoc(e)} />
                               Je ne dispose pas de ma facture d'électricité
                             </label>
                           </div>
@@ -540,16 +625,29 @@ export default function Home() {
                       <>
                         <p className="mb-0 fw-bold mt-3"><small>Ma dernière facture de gaz naturel</small></p>
                         <div className="d-flex flex-column">
-                          {formData["gasBillDoc"]["docName"] !== "N/A" && <Dropzone onDrop={(file) => handleGasBillDoc(file)}>
-                            {({ getRootProps, getInputProps }) => (
-                              <div {...getRootProps()} className="dropzone p-4 rounded d-flex flex-column align-items-center cursor-pointer">
-                                <input {...getInputProps()} />
-                                <FcAddImage className="fs-1" />
-                                <p className="text-center text-primary opacity-75 mb-0">Téléverser ma facture de gaz naturel</p>
-                                <p className="mb-0"><small>PNG, JPG, GIF, PDF jusqu'à 10MB</small></p>
-                              </div>
-                            )}
-                          </Dropzone>}
+                          {formData["gasBillDoc"]["docName"] !== "N/A" &&
+                            <>
+                              {formData["gasBillDoc"]["docName"].length < 3 ?
+                                <>
+                                  <Dropzone onDrop={(file) => handleGasBillDoc(file)}>
+                                    {({ getRootProps, getInputProps }) => (
+                                      <div {...getRootProps()} className="dropzone p-4 rounded d-flex flex-column align-items-center cursor-pointer">
+                                        <input {...getInputProps()} />
+                                        <FcAddImage className="fs-1" />
+                                        <p className="text-center text-primary opacity-75 mb-0">Téléverser ma facture de gaz naturel</p>
+                                        <p className="mb-0"><small>PNG, JPG, GIF, PDF jusqu'à 10MB</small></p>
+                                      </div>
+                                    )}
+                                  </Dropzone>
+                                </> : <>
+                                  <div className="d-flex align-items-center my-2 ms-3 fw-semibold">
+                                    <FcFile className="fs-4 me-1" />
+                                    <small>{formData["gasBillDoc"]["docName"]}</small>
+                                  </div>
+                                </>
+                              }
+                            </>
+                          }
                           <div class="form-check mt-3">
                             <label class="form-check-label user-select-none" hmtlFor="noGasBill">
                               <input className="form-check-input" type="checkbox" id="noGasBill" name="noGasBill" checked={formData["gasBillDoc"]["docName"] === "N/A"} onChange={(e) => onChangeNoDoc(e)} />
@@ -688,7 +786,7 @@ export default function Home() {
 
                         <div>
                           {
-                            inputFields.map((inputField, index) => (
+                            formData["electricMeterNo"].map((inputField, index) => (
                               <>
                                 <p className="fs-6 mb-0 fw-bold">
                                   <small>Numéro de PDL (ou RAE)</small>
@@ -697,16 +795,17 @@ export default function Home() {
                                   <input
                                     type="text"
                                     className="form-control form-control-sm me-2"
-                                    value={inputField.value}
+                                    name="electricPdl"
+                                    value={inputField}
                                     onChange={(event) => handleInputFieldChange(index, event)}
                                   />
-                                  <button className="btn btn-sm" type="button" onClick={() => handleDeleteInputField(index)}><FaTrashAlt /></button>
+                                  <button className="btn btn-sm" type="button" onClick={() => handleDeleteInputField(index, "elec")}><FaTrashAlt /></button>
                                 </div>
                               </>
                             ))
                           }
                           <div className="text-center">
-                            <button className="btn btn-sm btn-outline-secondary rounded-pill text-black" type="button" onClick={handleAddInputField}><span className="mx-2">+</span>Ajouter un compteur</button></div>
+                            <button className="btn btn-sm btn-outline-secondary rounded-pill text-black" type="button" onClick={() => handleAddInputField("elec")}><span className="mx-2">+</span>Ajouter un compteur</button></div>
                         </div>
                       </>
                     }
@@ -718,7 +817,7 @@ export default function Home() {
 
                         <div>
                           {
-                            inputFields.map((inputField, index) => (
+                            formData["gasMeterNo"].map((inputField, index) => (
                               <>
                                 <p className="fs-6 mb-0 fw-bold">
                                   <small>Numéro de PDL (ou RAE)</small>
@@ -727,18 +826,21 @@ export default function Home() {
                                   <input
                                     type="text"
                                     className="form-control form-control-sm me-2"
-                                    value={inputField.value}
+                                    value={inputField}
+                                    name="gasPdl"
                                     onChange={(event) => handleInputFieldChange(index, event)}
                                   />
-                                  <button className="btn btn-sm" type="button" onClick={() => handleDeleteInputField(index)}><FaTrashAlt /></button>
+                                  <button className="btn btn-sm" type="button" onClick={() => handleDeleteInputField(index, "gas")}><FaTrashAlt /></button>
                                 </div>
                               </>
                             ))
                           }
                           <div className="text-center">
-                            <button className="btn btn-sm btn-outline-secondary rounded-pill text-black" type="button" onClick={handleAddInputField}><span className="mx-2">+</span>Ajouter un compteur</button></div>
+                            <button className="btn btn-sm btn-outline-secondary rounded-pill text-black" type="button" onClick={() => handleAddInputField("gas")}><span className="mx-2">+</span>Ajouter un compteur</button></div>
                         </div>
                       </>}
+                    {isError && <p className="text-danger my-2"><small>Veuillez remplir tous les champs</small></p>}
+
 
 
                     <div className="d-flex justify-content-between">
