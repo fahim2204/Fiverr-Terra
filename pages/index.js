@@ -1,6 +1,6 @@
-import Head from "Next/head";
-import Image from "Next/image";
-import Link from "Next/link";
+import Head from "next/head";
+import Image from "next/image";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Dropzone from "react-dropzone";
