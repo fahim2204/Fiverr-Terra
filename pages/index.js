@@ -6,6 +6,7 @@ import axios from "axios";
 import Dropzone from "react-dropzone";
 import { FaTrashAlt } from "react-icons/fa";
 import { HiOutlineOfficeBuilding } from "react-icons/hi"
+import { FcAddImage } from "react-icons/fc";
 import Calendar from 'react-calendar';
 
 export default function Home() {
@@ -39,7 +40,7 @@ export default function Home() {
 
 
 
-  const totalStep = 7;
+  const totalStep = 9;
   const [formStep, setFormStep] = useState(1);
   const [formQues, setFormQues] = useState(1);
   const [companyDetails, setCompanyDetails] = useState([]);
@@ -94,6 +95,9 @@ export default function Home() {
   const handleSeventh = () => {
     setFormStep(8);
   };
+  const handleEighth = () => {
+    setFormStep(9);
+  };
   const handleFromData = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -139,7 +143,7 @@ export default function Home() {
             {formStep === 1 && (
               <>
                 <div className="col-sm-12 col-md-10 col-lg-8">
-                  <div className="main-card border shadow-sm rounded p-4">
+                  <div className="main-card border shadow-sm rounded p-4 mb-3">
                     <p className="fs-4 fw-bold">
                       For which company (company name or SIREN) would you like to compare energy
                       offers?
@@ -180,7 +184,7 @@ export default function Home() {
                                 }}
                               >
                                 <div className="d-flex justify-content-between align-items-center">
-                                  <div className="fw-bold"><HiOutlineOfficeBuilding className="me-2 fs-4"/>{item.raisonSociale}</div>
+                                  <div className="fw-bold"><HiOutlineOfficeBuilding className="me-2 fs-4" />{item.raisonSociale}</div>
                                   <div className="d-flex flex-column align-items-end">
                                     <small>{item.siren.libelle}</small>
                                     <small className="text-danger">{item.codeNaf}</small>
@@ -206,7 +210,7 @@ export default function Home() {
             {formStep === 2 && (
               <>
                 <div className="col-sm-12 col-md-10 col-lg-8">
-                  <div className="main-card border shadow-sm rounded p-4">
+                  <div className="main-card border shadow-sm rounded p-4 mb-3">
                     <p className="fs-4 fw-bold">
                       Merci de nous confirmer la nature de votre structure
                     </p>
@@ -297,7 +301,7 @@ export default function Home() {
             {formStep === 3 && (
               <>
                 <div className="col-sm-12 col-md-10 col-lg-8">
-                  <div className="main-card border shadow-sm rounded p-4">
+                  <div className="main-card border shadow-sm rounded p-4 mb-3">
                     <p className="fs-4 fw-bold">
                       Pour quel type d'énergie souhaitez-vous comparer les offres?
                     </p>
@@ -369,19 +373,36 @@ export default function Home() {
             {formStep === 4 && (
               <>
                 <div className="col-sm-12 col-md-10 col-lg-8">
-                  <div className="main-card border shadow-sm rounded p-4">
-                    <p className="fs-4 fw-bold">
-                      Document Upload : "Téléverser ma derniere facture"
+                  <div className="main-card border shadow-sm rounded p-4 mb-3">
+                    <p className="fs-4 mb-0 fw-bold">
+                      Téléverser ma derniere facture <small>(facultatif)</small>
                     </p>
+                    <p className="lh-sm"><small>Nos courtiers auront besoin de vos factures d'énergie pour mieux traiter votre demande, vous pouvez leur transmettre ici si vous le souhaitez.</small></p>
+                    {/* Electricity Bill */}
+                    <p className="mb-0 fw-bold"><small>Ma dernière facture d'électricité</small></p>
                     <div className="d-flex flex-column">
                       <Dropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
                         {({ getRootProps, getInputProps }) => (
-                          <section>
-                            <div {...getRootProps()}>
-                              <input {...getInputProps()} />
-                              <p>Drag 'n' drop some files here, or click to select files</p>
-                            </div>
-                          </section>
+                          <div {...getRootProps()} className="dropzone p-4 rounded d-flex flex-column align-items-center cursor-pointer">
+                            <input {...getInputProps()} />
+                            <FcAddImage className="fs-1"/>
+                            <p className="text-center text-primary opacity-75 mb-0">Téléverser ma facture d'électricité</p>
+                            <p className="mb-0"><small>PNG, JPG, GIF, PDF jusqu'à 10MB</small></p>
+                          </div>
+                        )}
+                      </Dropzone>
+                    </div>
+                    {/* Gas Bill */}
+                    <p className="mb-0 fw-bold mt-3"><small>Ma dernière facture de gaz naturel</small></p>
+                    <div className="d-flex flex-column">
+                      <Dropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
+                        {({ getRootProps, getInputProps }) => (
+                          <div {...getRootProps()} className="dropzone p-4 rounded d-flex flex-column align-items-center cursor-pointer">
+                            <input {...getInputProps()} />
+                            <FcAddImage className="fs-1"/>
+                            <p className="text-center text-primary opacity-75 mb-0">Téléverser ma facture de gaz naturel</p>
+                            <p className="mb-0"><small>PNG, JPG, GIF, PDF jusqu'à 10MB</small></p>
+                          </div>
                         )}
                       </Dropzone>
                     </div>
@@ -405,7 +426,7 @@ export default function Home() {
             {formStep === 5 && (
               <>
                 <div className="col-sm-12 col-md-10 col-lg-8">
-                  <div className="main-card border shadow-sm rounded p-4">
+                  <div className="main-card border shadow-sm rounded p-4 mb-3">
                     <p className="fs-4 fw-bold">
                       Merci de nous indiquer la raison de cette mise en concurrence énergie
                     </p>
@@ -501,7 +522,7 @@ export default function Home() {
             {formStep === 6 && (
               <>
                 <div className="col-sm-12 col-md-10 col-lg-8">
-                  <div className="main-card border shadow-sm rounded p-4">
+                  <div className="main-card border shadow-sm rounded p-4 mb-3">
                     <p className="fs-4 fw-bold">
                       Merci de préciser le périmètre de votre comparaison
                     </p>
@@ -578,7 +599,7 @@ export default function Home() {
             {formStep === 7 && (
               <>
                 <div className="col-sm-12 col-md-10 col-lg-8">
-                  <div className="main-card border shadow-sm rounded p-4">
+                  <div className="main-card border shadow-sm rounded p-4 mb-3">
                     <p className="fs-4 fw-bold">
                       Informations de mise en service
                     </p>
@@ -702,7 +723,7 @@ export default function Home() {
                           onChange={(e) => handleFromData(e)}
                         />
                         <div>
-                         Supérieur à 20 GWh/an
+                          Supérieur à 20 GWh/an
                         </div>
                       </label>
                     </div>
@@ -719,6 +740,233 @@ export default function Home() {
                       </button>
                       <button className="btn btn-dark py-1 mt-3" onClick={() => handleSeventh()}>
                         Next
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+            {/* //--- STEP-8 */}
+            {formStep === 8 && (
+              <>
+                <div className="col-sm-12 col-md-10 col-lg-8">
+                  <div className="main-card border shadow-sm rounded p-4 mb-3">
+                    <p className="fs-4 fw-bold mb-0">
+                      Merci de nous communiquer vos coordonnées
+                    </p>
+                    <small className="mb-2">Ces informations restent strictement confidentielles et sont utilisées uniquement dans le cadre de la souscription d'un contrat d'énergie.</small>
+
+                    <div className="fw-bold mt-2"><small>Civilité</small></div>
+                    <div className="d-flex justify-content-center align-items-center">
+                      <input
+                        type="radio"
+                        name="gender"
+                        id="feed-cat-1"
+                        value="Monsieur"
+                        checked={
+                          formData["gender"] === "Monsieur"
+                        }
+                        className="cat-radio"
+                        onChange={(e) => handleFromData(e)}
+                      />
+                      <label
+                        htmlFor="feed-cat-1"
+                        className="feed-emo me-1 feed-emo-1"
+                      >
+                        Monsieur
+                      </label>
+                      <input
+                        type="radio"
+                        name="gender"
+                        id="feed-cat-2"
+                        value="Madame"
+                        checked={
+                          formData["gender"] === "Madame"
+                        }
+                        className="cat-radio"
+                        onChange={(e) => handleFromData(e)}
+                      />
+                      <label
+                        htmlFor="feed-cat-2"
+                        className="feed-emo ms-1 feed-emo-2"
+                      >
+                        Madame
+                      </label>
+                    </div>
+                    <label for="firstName" class="form-label mt-2 mb-0">
+                      <small className="fw-bold">First Name</small>
+                    </label>
+                    <input
+                      type="text"
+                      class={`form-control ${formData["firstName"] === "" ? "is-invalid" : "is-valid"
+                        }`}
+                      name="firstName"
+                      onChange={(e) => handleFromData(e)}
+                      value={formData["firstName"]}
+                      autoComplete="off"
+                      id="firstName"
+                      required
+                    />
+                    <label for="lastName" class="form-label mt-2 mb-0">
+                      <small className="fw-bold">Last Name</small>
+                    </label>
+                    <input
+                      type="text"
+                      class={`form-control ${formData["lastName"] === "" ? "is-invalid" : "is-valid"
+                        }`}
+                      name="lastName"
+                      onChange={(e) => handleFromData(e)}
+                      value={formData["lastName"]}
+                      autoComplete="off"
+                      id="lastName"
+                      required
+                    />
+                    <label for="email" class="form-label mt-2 mb-0">
+                      <small className="fw-bold">Email</small>
+                    </label>
+                    <input
+                      type="email"
+                      class={`form-control ${formData["email"] === "" ? "is-invalid" : "is-valid"
+                        }`}
+                      name="email"
+                      onChange={(e) => handleFromData(e)}
+                      value={formData["email"]}
+                      autoComplete="off"
+                      id="email"
+                      required
+                    />
+                    <label for="phone" class="form-label mt-2 mb-0">
+                      <small className="fw-bold">Phone</small>
+                    </label>
+                    <input
+                      type="tel"
+                      class={`form-control ${formData["phone"] === "" ? "is-invalid" : "is-valid"
+                        }`}
+                      name="phone"
+                      onChange={(e) => handleFromData(e)}
+                      value={formData["phone"]}
+                      autoComplete="off"
+                      id="phone"
+                      required
+                    />
+                    <div className="d-flex justify-content-between">
+                      <button
+                        className="btn btn-light text-black py-1 mt-3 border"
+                        onClick={() => setFormStep(formStep - 1)}
+                      >
+                        Previous
+                      </button>
+                      <button className="btn btn-dark py-1 mt-3" onClick={() => handleEighth()}>
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+            {/* //--- STEP-9 */}
+            {formStep === 9 && (
+              <>
+                <div className="col-sm-12 col-md-10 col-lg-8">
+                  <div className="main-card border shadow-sm rounded p-4 mb-3">
+                    <p className="fs-4 fw-bold mb-0">
+                      Confidentialité des données (RGPD)
+                    </p>
+                    <div className="mb-3 lh-sm"><small>Je souhaite obtenir gratuitement et sans engagement de ma part, informations et offres commerciales utiles à mon activité PROFESSIONNELLE et relatives au marché de l'énergie. Je pourrai à tout moment, d'un simple clic, stopper cette autorisation et obtenir, sur simple demande, la communication, la rectification ou la suppression des données personnelles collectées.</small></div>
+                    <div className="d-flex justify-content-center align-items-center">
+                      <input
+                        type="radio"
+                        name="dataprivacy"
+                        id="feed-cat-1"
+                        value="Yes"
+                        checked={
+                          formData["dataprivacy"] === "Yes"
+                        }
+                        className="cat-radio"
+                        onChange={(e) => handleFromData(e)}
+                      />
+                      <label
+                        htmlFor="feed-cat-1"
+                        className="feed-emo me-1 feed-emo-1"
+                      >
+                        Oui
+                      </label>
+                      <input
+                        type="radio"
+                        name="dataprivacy"
+                        id="feed-cat-2"
+                        value="No"
+                        checked={
+                          formData["dataprivacy"] === "No"
+                        }
+                        className="cat-radio"
+                        onChange={(e) => handleFromData(e)}
+                      />
+                      <label
+                        htmlFor="feed-cat-2"
+                        className="feed-emo ms-1 feed-emo-2"
+                      >
+                        Non
+                      </label>
+                    </div>
+                    <div class="form-check mt-3">
+                      <input className="form-check-input" type="checkbox" id="agree" name="agree" required />
+                      <label class="form-check-label user-select-none" hmtlFor="agree">
+                        Je suis d'accord avec ces <span className="border-bottom cursor-pointer" data-bs-toggle="modal" data-bs-target="#termsModal">termes et conditions</span>.
+                      </label>
+                    </div>
+
+                    {/* <!-- Modal --> */}
+                    <div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsModalLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="termsModalLabel">Termes et conditions</h5>
+                          </div>
+                          <div class="modal-body">
+                            <p className="lh-sm">Par la signature de ce document, le Client autorise expressément TERRA GROUPE, ainsi que l’ensemble des fournisseurs
+                              d’énergie partenaires avec lesquels celle-ci est liée par contrat, à demander aux gestionnaires de réseau de distribution de gaz
+                              naturel et d’électricité (Enedis, GRDF...) et au(x) fournisseur(s) actuel(s) les caractéristiques techniques et les données
+                              d’acheminement, sous réserve de disponibilité:</p>
+                            <ul className="lh-sm">
+                              <li className="mb-1">L'historique des consommations, en kWh, du site (et puissances atteintes et dépassements de puissance et énergie réactive)</li>
+                              <li className="mb-1">L'historique des relevés d'index quotidiens, en kWh, et la puissance maximale quotidienne, en kVA ou kW, du site</li>
+                              <li className="mb-1">L'historique des courbes de charge du site (points 10 minutes)</li>
+                              <li className="mb-1">Les données techniques et contractuelles disponibles du site</li>
+                              <li className="mb-1">La segmentation technique C1, C2, C3, C4 ou C5</li>
+                              <li className="mb-1">Les éléments nécessaires à la télérelève des compteurs : numéro de téléphone, code esclave, type de compteur, aiguilleur, fenêtre de lecture,...</li>
+                              <li className="mb-1">Les éléments relatifs aux transformateurs de courant « TC » installés : Tension de livraison, rapport de transformation, classe de précision, puissance minimale autorisée, puissance maximale autorisée</li>
+                              <li className="mb-1">L'historique des consommations, en m3, du site</li>
+                              <li className="mb-1">L'historique des relevés d'index, en m3</li>
+                              <li className="mb-1">La capacité journalière des sites concernés en MWh/j</li>
+                              <li className="mb-1">La modulation hivernale des sites concernés (TP, T4, T3JJ) en MWh/j</li>
+                              <li className="mb-1">Les données techniques et contractuelles disponibles du site</li>
+                              <li className="mb-1">La segmentation technique T1, T2, T3, T4</li>
+                              <li className="mb-1">Les éléments relatifs au comptage</li>
+                            </ul>
+                            <p className="lh-sm">
+                              La présente autorisation autorise TERRA GROUPE à accéder aux données du point de livraison, et autorise les fournisseurs
+                              partenaires de TERRA GROUPE à y accéder également. Elle est consentie pour une durée de 12 mois à compter de la date
+                              de signature et n’engage aucun frais de votre part.<br />
+                              Le client accepte expressément que ses données personnelles soient conservées par TERRA GROUPE et/ou GRD à des fins de
+                              gestion de traçabilité. Conformément à la loi Informatique et Libertés du 6 janvier 1978, le Client dispose d’un droit d’accès, de
+                              rectification, de suppression et d’opposition pour motifs légitimes sur l’ensemble des données le concernant qu’il peut exercer sur
+                              simple demande auprès de TERRA GROUPE et/ou GRD.
+                            </p>
+
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+
+                    <div className="d-flex justify-content-end">
+
+                      <button className="btn btn-dark py-1 mt-3" onClick={() => handleSubmit()}>
+                        Suivant
                       </button>
                     </div>
                   </div>
