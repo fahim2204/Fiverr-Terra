@@ -61,10 +61,47 @@ export default function Home() {
     reason: "",
     electricityDate: "",
     gasDate: "",
-    electricConsume:"",
-    gasConsume:"",
+    electricConsume: "",
+    gasConsume: "",
+    electricBillDoc: {
+      docName: "",
+      docData: "",
+    },
+    gasBillDoc: {
+      docName: "",
+      docData: "",
+    },
   });
   const [isError, setisError] = useState(false);
+
+  const handleGasBillDoc = (item) => {
+    const file = item[0];
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const base64 = e.target.result;
+      setFormData({ ...formData, gasBillDoc: { docName: item[0].name, docData: base64 } });
+    };
+    reader.readAsDataURL(file);
+  }
+  const handleElectricBillDoc = (item) => {
+    const file = item[0];
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const base64 = e.target.result;
+      setFormData({ ...formData, electricBillDoc: { docName: item[0].name, docData: base64 } });
+      // Save the base64 in a state or do something else with it
+    };
+    reader.readAsDataURL(file);
+  }
+  const onChangeNoDoc = (e) => {
+    if (e.target.name === "noElecBill") {
+      e.target.checked ? setFormData({ ...formData, electricBillDoc: { docName: "N/A", docData: "N/A" } }) :
+        setFormData({ ...formData, electricBillDoc: { docName: "", docData: "" } })
+    } else {
+      e.target.checked ? setFormData({ ...formData, gasBillDoc: { docName: "N/A", docData: "N/A" } }) :
+        setFormData({ ...formData, gasBillDoc: { docName: "", docData: "" } })
+    }
+  }
 
   const fetchCompanyDetails = async (e) => {
     let txt = e.target.value;
@@ -81,7 +118,7 @@ export default function Home() {
     }
   };
   const selectCompany = (item) => {
-    setFormData({ ...formData, companyName: item.name, companyRegNo: item.registration_number, companyAddress:item.formatted_address });
+    setFormData({ ...formData, companyName: item.name, companyRegNo: item.registration_number, companyAddress: item.formatted_address });
     setisError(false)
     setCompanyDetails([]);
   };
@@ -100,12 +137,13 @@ export default function Home() {
     }
   }
   const handleFirst = () => {
-    if (formData['companyName'].length < 1 || formData['companyRegNo'].length < 1 || formData['companyAddress'].length < 1 ) {
-      setisError(true)
-    } else {
-      setisError(false)
-      setFormStep(2);
-    }
+    // if (formData['companyName'].length < 1 || formData['companyRegNo'].length < 1 || formData['companyAddress'].length < 1 ) {
+    //   setisError(true)
+    // } else {
+    //   setisError(false)
+    //   setFormStep(2);
+    // }
+    setFormStep(3);
   };
   const handleSecond = () => {
     if (formData['structure'].length < 1) {
@@ -124,7 +162,30 @@ export default function Home() {
     }
   };
   const handleForth = () => {
-    setFormStep(5);
+    if (formData['energy'] === "Electricité & Gaz naturel") {
+      if (formData['gasBillDoc']['docData'].length < 2 || formData['electricBillDoc']['docData'].length < 2) {
+        setisError(true)
+      } else {
+        setFormStep(5);
+        setisError(false)
+      }
+    }
+    else if (formData['energy'] === "Gaz naturel") {
+      if (formData['gasBillDoc']['docData'].length < 2) {
+        setisError(true)
+      } else {
+        setFormStep(5);
+        setisError(false)
+      }
+    }
+    else {
+      if (formData['electricBillDoc']['docData'].length < 2) {
+        setisError(true)
+      } else {
+        setFormStep(5);
+        setisError(false)
+      }
+    }
   };
   const handleFifth = () => {
     if (formData['reason'].length < 1) {
@@ -176,7 +237,7 @@ export default function Home() {
           </Link>
         </nav>
         <div className="row mt-4">
-          <div className="col-3">
+          <div className="col-12 col-sm-3">
             <ul className="list-unstyled ps-3 d-flex flex-column">
               <li className="my-2">
                 <span className="rounded-circle py-1 px-2 bg-black text-white">1</span>
@@ -196,7 +257,7 @@ export default function Home() {
               </li>
             </ul>
           </div>
-          <div className="col-9">
+          <div className="col-12 col-sm-9">
             {/* //--- STEP-1 */}
             {formStep === 1 && (
               <>
@@ -207,10 +268,10 @@ export default function Home() {
                       offers?
                     </p>
                     <p>
-                      This information is necessary in order to best process your call for tenders
+                      This information is necessary in order to best process your call htmlFor tenders
                     </p>
                     <div class="col-12 mb-1">
-                      <label for="validationServer03" class="form-label">
+                      <label htmlFor="validationServer03" class="form-label">
                         Company name or SIREN
                       </label>
                       <input
@@ -455,7 +516,7 @@ export default function Home() {
                       <>
                         <p className="mb-0 fw-bold"><small>Ma dernière facture d'électricité</small></p>
                         <div className="d-flex flex-column">
-                          <Dropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
+                          {formData["electricBillDoc"]["docName"] !== "N/A" && <Dropzone onDrop={(file) => handleElectricBillDoc(file)}>
                             {({ getRootProps, getInputProps }) => (
                               <div {...getRootProps()} className="dropzone p-4 rounded d-flex flex-column align-items-center cursor-pointer">
                                 <input {...getInputProps()} />
@@ -464,7 +525,13 @@ export default function Home() {
                                 <p className="mb-0"><small>PNG, JPG, GIF, PDF jusqu'à 10MB</small></p>
                               </div>
                             )}
-                          </Dropzone>
+                          </Dropzone>}
+                          <div class="form-check mt-3">
+                            <label class="form-check-label user-select-none" hmtlFor="noElecBill">
+                              <input className="form-check-input" type="checkbox" id="noElecBill" name="noElecBill"   checked={formData["electricBillDoc"]["docName"] === "N/A"} onChange={(e) => onChangeNoDoc(e)} />
+                              Je ne dispose pas de ma facture d'électricité
+                            </label>
+                          </div>
                         </div>
                       </>
                     }
@@ -473,7 +540,7 @@ export default function Home() {
                       <>
                         <p className="mb-0 fw-bold mt-3"><small>Ma dernière facture de gaz naturel</small></p>
                         <div className="d-flex flex-column">
-                          <Dropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
+                          {formData["gasBillDoc"]["docName"] !== "N/A" && <Dropzone onDrop={(file) => handleGasBillDoc(file)}>
                             {({ getRootProps, getInputProps }) => (
                               <div {...getRootProps()} className="dropzone p-4 rounded d-flex flex-column align-items-center cursor-pointer">
                                 <input {...getInputProps()} />
@@ -482,9 +549,16 @@ export default function Home() {
                                 <p className="mb-0"><small>PNG, JPG, GIF, PDF jusqu'à 10MB</small></p>
                               </div>
                             )}
-                          </Dropzone>
+                          </Dropzone>}
+                          <div class="form-check mt-3">
+                            <label class="form-check-label user-select-none" hmtlFor="noGasBill">
+                              <input className="form-check-input" type="checkbox" id="noGasBill" name="noGasBill" checked={formData["gasBillDoc"]["docName"] === "N/A"} onChange={(e) => onChangeNoDoc(e)} />
+                              Je ne dispose pas de ma facture de gaz naturel
+                            </label>
+                          </div>
                         </div>
                       </>}
+                    {isError && <p className="text-danger my-2"><small>Veuillez télécharger une copie de la facture ou cocher la case</small></p>}
 
                     <div className="d-flex justify-content-between">
                       <button
@@ -887,7 +961,7 @@ export default function Home() {
                         Madame
                       </label>
                     </div>
-                    <label for="firstName" class="form-label mt-2 mb-0">
+                    <label htmlFor="firstName" class="form-label mt-2 mb-0">
                       <small className="fw-bold">First Name</small>
                     </label>
                     <input
@@ -901,7 +975,7 @@ export default function Home() {
                       id="firstName"
                       required
                     />
-                    <label for="lastName" class="form-label mt-2 mb-0">
+                    <label htmlFor="lastName" class="form-label mt-2 mb-0">
                       <small className="fw-bold">Last Name</small>
                     </label>
                     <input
@@ -915,7 +989,7 @@ export default function Home() {
                       id="lastName"
                       required
                     />
-                    <label for="email" class="form-label mt-2 mb-0">
+                    <label htmlFor="email" class="form-label mt-2 mb-0">
                       <small className="fw-bold">Email</small>
                     </label>
                     <input
@@ -929,7 +1003,7 @@ export default function Home() {
                       id="email"
                       required
                     />
-                    <label for="phone" class="form-label mt-2 mb-0">
+                    <label htmlFor="phone" class="form-label mt-2 mb-0">
                       <small className="fw-bold">Phone</small>
                     </label>
                     <input
