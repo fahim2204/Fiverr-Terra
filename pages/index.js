@@ -1,6 +1,6 @@
-import Head from "next/head";
-import Image from "next/image";
-import Link from "next/link";
+import Head from "Next/head";
+import Image from "Next/image";
+import Link from "Next/link";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Dropzone from "react-dropzone";
@@ -11,8 +11,15 @@ import Calendar from 'react-calendar';
 
 export default function Home() {
 
-  //Calenders
-  const [value, onChange] = useState(new Date());
+  const [elecDateValue, setElecDateValue] = useState(new Date());
+  const [gasDateValue, setGasDateValue] = useState(new Date());
+  useEffect(() => {
+    setFormData({ ...formData, ["electricityDate"]: Date.parse(elecDateValue) });
+  }, [elecDateValue])
+  useEffect(() => {
+    setFormData({ ...formData, ["gasDate"]: Date.parse(gasDateValue) });
+  }, [gasDateValue])
+
 
   // Use the useState hook to create a state variable called "inputFields"
   // and a function to update it called "setInputFields"
@@ -51,6 +58,11 @@ export default function Home() {
     companyNaf: "",
     structure: "",
     energy: "",
+    reason: "",
+    electricityDate: "",
+    gasDate: "",
+    electricConsume:"",
+    gasConsume:"",
   });
   const [isError, setisError] = useState(false);
 
@@ -70,6 +82,7 @@ export default function Home() {
   };
   const selectCompany = (item) => {
     setFormData({ ...formData, companyName: item.raisonSociale, companySiren: item.siren.libelle, companyNaf: item.codeNaf });
+    setisError(false)
     setCompanyDetails([]);
   };
 
@@ -77,6 +90,15 @@ export default function Home() {
     console.log("FormData", formData);
   }, [formData]);
 
+
+  const goBack = () => {
+    setisError(false);
+    if (formStep === 8 && formData['reason'] === "Changement de fournisseur sur le site actuel") {
+      setFormStep(formStep - 2);
+    } else {
+      setFormStep(formStep - 1);
+    }
+  }
   const handleFirst = () => {
     if (formData['companyName'].length < 1 || formData['companySiren'].length < 1 || formData['companyNaf'].length < 1) {
       setisError(true)
@@ -86,19 +108,41 @@ export default function Home() {
     }
   };
   const handleSecond = () => {
-    setFormStep(3);
+    if (formData['structure'].length < 1) {
+      setisError(true)
+    } else {
+      setisError(false)
+      setFormStep(3);
+    }
   };
   const handleThird = () => {
-    setFormStep(4);
+    if (formData['energy'].length < 1) {
+      setisError(true)
+    } else {
+      setisError(false)
+      setFormStep(4);
+    }
   };
   const handleForth = () => {
     setFormStep(5);
   };
   const handleFifth = () => {
-    setFormStep(6);
+    if (formData['reason'].length < 1) {
+      setisError(true)
+    } else {
+      setisError(false)
+      setFormStep(6);
+    }
   };
   const handleSixth = () => {
-    setFormStep(7);
+    if (formData['reason'] === "Changement de fournisseur sur le site actuel") {
+      setFormStep(8);
+      setisError(false)
+    }
+    else {
+      setisError(false)
+      setFormStep(7);
+    }
   };
   const handleSeventh = () => {
     setFormStep(8);
@@ -106,8 +150,14 @@ export default function Home() {
   const handleEighth = () => {
     setFormStep(9);
   };
+  const handleMeterDate = (date, str) => {
+    let formattedDate = `${date.getMonth() + 1
+      }/${date.getDate()}/${date.getFullYear()}`;
+    setFormData({ ...formData, [str]: formattedDate });
+  }
   const handleFromData = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setisError(false)
   };
 
   return (
@@ -219,7 +269,7 @@ export default function Home() {
                     </>}
                     <div className="text-end mt-2">
                       <button className="btn btn-dark py-1 mt-3" onClick={() => handleFirst()}>
-                        Start
+                        Démarrer
                       </button>
                     </div>
                   </div>
@@ -302,15 +352,16 @@ export default function Home() {
                         <div> Un organisme religieux</div>
                       </label>
                     </div>
+                    {isError && <p className="text-danger my-2"><small>Veuillez sélectionner une option</small></p>}
                     <div className="d-flex justify-content-between">
                       <button
                         className="btn btn-light text-black py-1 mt-3 border"
-                        onClick={() => setFormStep(formStep - 1)}
+                        onClick={() => goBack()}
                       >
-                        Previous
+                        Précédent
                       </button>
                       <button className="btn btn-dark py-1 mt-3" onClick={() => handleSecond()}>
-                        Next
+                        Suivant
                       </button>
                     </div>
                   </div>
@@ -373,16 +424,17 @@ export default function Home() {
                         </div>
                       </label>
                     </div>
+                    {isError && <p className="text-danger my-2"><small>Veuillez sélectionner une option</small></p>}
 
                     <div className="d-flex justify-content-between">
                       <button
                         className="btn btn-light text-black py-1 mt-3 border"
-                        onClick={() => setFormStep(formStep - 1)}
+                        onClick={() => goBack()}
                       >
-                        Previous
+                        Précédent
                       </button>
                       <button className="btn btn-dark py-1 mt-3" onClick={() => handleThird()}>
-                        Next
+                        Suivant
                       </button>
                     </div>
                   </div>
@@ -399,43 +451,50 @@ export default function Home() {
                     </p>
                     <p className="lh-sm"><small>Nos courtiers auront besoin de vos factures d'énergie pour mieux traiter votre demande, vous pouvez leur transmettre ici si vous le souhaitez.</small></p>
                     {/* Electricity Bill */}
-                    <p className="mb-0 fw-bold"><small>Ma dernière facture d'électricité</small></p>
-                    <div className="d-flex flex-column">
-                      <Dropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
-                        {({ getRootProps, getInputProps }) => (
-                          <div {...getRootProps()} className="dropzone p-4 rounded d-flex flex-column align-items-center cursor-pointer">
-                            <input {...getInputProps()} />
-                            <FcAddImage className="fs-1" />
-                            <p className="text-center text-primary opacity-75 mb-0">Téléverser ma facture d'électricité</p>
-                            <p className="mb-0"><small>PNG, JPG, GIF, PDF jusqu'à 10MB</small></p>
-                          </div>
-                        )}
-                      </Dropzone>
-                    </div>
+                    {(formData["energy"] === "Electricité" || formData["energy"] === "Electricité & Gaz naturel") &&
+                      <>
+                        <p className="mb-0 fw-bold"><small>Ma dernière facture d'électricité</small></p>
+                        <div className="d-flex flex-column">
+                          <Dropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
+                            {({ getRootProps, getInputProps }) => (
+                              <div {...getRootProps()} className="dropzone p-4 rounded d-flex flex-column align-items-center cursor-pointer">
+                                <input {...getInputProps()} />
+                                <FcAddImage className="fs-1" />
+                                <p className="text-center text-primary opacity-75 mb-0">Téléverser ma facture d'électricité</p>
+                                <p className="mb-0"><small>PNG, JPG, GIF, PDF jusqu'à 10MB</small></p>
+                              </div>
+                            )}
+                          </Dropzone>
+                        </div>
+                      </>
+                    }
                     {/* Gas Bill */}
-                    <p className="mb-0 fw-bold mt-3"><small>Ma dernière facture de gaz naturel</small></p>
-                    <div className="d-flex flex-column">
-                      <Dropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
-                        {({ getRootProps, getInputProps }) => (
-                          <div {...getRootProps()} className="dropzone p-4 rounded d-flex flex-column align-items-center cursor-pointer">
-                            <input {...getInputProps()} />
-                            <FcAddImage className="fs-1" />
-                            <p className="text-center text-primary opacity-75 mb-0">Téléverser ma facture de gaz naturel</p>
-                            <p className="mb-0"><small>PNG, JPG, GIF, PDF jusqu'à 10MB</small></p>
-                          </div>
-                        )}
-                      </Dropzone>
-                    </div>
+                    {(formData["energy"] === "Gaz naturel" || formData["energy"] === "Electricité & Gaz naturel") &&
+                      <>
+                        <p className="mb-0 fw-bold mt-3"><small>Ma dernière facture de gaz naturel</small></p>
+                        <div className="d-flex flex-column">
+                          <Dropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
+                            {({ getRootProps, getInputProps }) => (
+                              <div {...getRootProps()} className="dropzone p-4 rounded d-flex flex-column align-items-center cursor-pointer">
+                                <input {...getInputProps()} />
+                                <FcAddImage className="fs-1" />
+                                <p className="text-center text-primary opacity-75 mb-0">Téléverser ma facture de gaz naturel</p>
+                                <p className="mb-0"><small>PNG, JPG, GIF, PDF jusqu'à 10MB</small></p>
+                              </div>
+                            )}
+                          </Dropzone>
+                        </div>
+                      </>}
 
                     <div className="d-flex justify-content-between">
                       <button
                         className="btn btn-light text-black py-1 mt-3 border"
-                        onClick={() => setFormStep(formStep - 1)}
+                        onClick={() => goBack()}
                       >
-                        Previous
+                        Précédent
                       </button>
                       <button className="btn btn-dark py-1 mt-3" onClick={() => handleForth()}>
-                        Next
+                        Suivant
                       </button>
                     </div>
                   </div>
@@ -522,16 +581,17 @@ export default function Home() {
                         </div>
                       </label>
                     </div>
+                    {isError && <p className="text-danger my-2"><small>Veuillez sélectionner une option</small></p>}
 
                     <div className="d-flex justify-content-between">
                       <button
                         className="btn btn-light text-black py-1 mt-3 border"
-                        onClick={() => setFormStep(formStep - 1)}
+                        onClick={() => goBack()}
                       >
-                        Previous
+                        Précédent
                       </button>
                       <button className="btn btn-dark py-1 mt-3" onClick={() => handleFifth()}>
-                        Next
+                        Suivant
                       </button>
                     </div>
                   </div>
@@ -546,69 +606,76 @@ export default function Home() {
                     <p className="fs-4 fw-bold">
                       Merci de préciser le périmètre de votre comparaison
                     </p>
-                    <p className="fs-5 fw-bold mb-1">
-                      Vos compteurs électriques
-                    </p>
+                    {(formData["energy"] === "Electricité" || formData["energy"] === "Electricité & Gaz naturel") &&
+                      <>
+                        <p className="fs-5 fw-bold mb-1">
+                          Vos compteurs électriques
+                        </p>
 
-                    <div>
-                      {
-                        inputFields.map((inputField, index) => (
-                          <>
-                            <p className="fs-6 mb-0 fw-bold">
-                              <small>Numéro de PDL (ou RAE)</small>
-                            </p>
-                            <div className="d-flex mb-2" key={index}>
-                              <input
-                                type="text"
-                                className="form-control form-control-sm me-2"
-                                value={inputField.value}
-                                onChange={(event) => handleInputFieldChange(index, event)}
-                              />
-                              <button className="btn btn-sm" type="button" onClick={() => handleDeleteInputField(index)}><FaTrashAlt /></button>
-                            </div>
-                          </>
-                        ))
-                      }
-                      <div className="text-center">
-                        <button className="btn btn-sm btn-outline-secondary rounded-pill text-black" type="button" onClick={handleAddInputField}><span className="mx-2">+</span>Ajouter un compteur</button></div>
-                    </div>
-                    <p className="fs-5 fw-bold mb-1 mt-4">
-                      Vos compteurs de gaz naturel
-                    </p>
+                        <div>
+                          {
+                            inputFields.map((inputField, index) => (
+                              <>
+                                <p className="fs-6 mb-0 fw-bold">
+                                  <small>Numéro de PDL (ou RAE)</small>
+                                </p>
+                                <div className="d-flex mb-2" key={index}>
+                                  <input
+                                    type="text"
+                                    className="form-control form-control-sm me-2"
+                                    value={inputField.value}
+                                    onChange={(event) => handleInputFieldChange(index, event)}
+                                  />
+                                  <button className="btn btn-sm" type="button" onClick={() => handleDeleteInputField(index)}><FaTrashAlt /></button>
+                                </div>
+                              </>
+                            ))
+                          }
+                          <div className="text-center">
+                            <button className="btn btn-sm btn-outline-secondary rounded-pill text-black" type="button" onClick={handleAddInputField}><span className="mx-2">+</span>Ajouter un compteur</button></div>
+                        </div>
+                      </>
+                    }
+                    {(formData["energy"] === "Gaz naturel" || formData["energy"] === "Electricité & Gaz naturel") &&
+                      <>
+                        <p className="fs-5 fw-bold mb-1 mt-4">
+                          Vos compteurs de gaz naturel
+                        </p>
 
-                    <div>
-                      {
-                        inputFields.map((inputField, index) => (
-                          <>
-                            <p className="fs-6 mb-0 fw-bold">
-                              <small>Numéro de PDL (ou RAE)</small>
-                            </p>
-                            <div className="d-flex mb-2" key={index}>
-                              <input
-                                type="text"
-                                className="form-control form-control-sm me-2"
-                                value={inputField.value}
-                                onChange={(event) => handleInputFieldChange(index, event)}
-                              />
-                              <button className="btn btn-sm" type="button" onClick={() => handleDeleteInputField(index)}><FaTrashAlt /></button>
-                            </div>
-                          </>
-                        ))
-                      }
-                      <div className="text-center">
-                        <button className="btn btn-sm btn-outline-secondary rounded-pill text-black" type="button" onClick={handleAddInputField}><span className="mx-2">+</span>Ajouter un compteur</button></div>
-                    </div>
+                        <div>
+                          {
+                            inputFields.map((inputField, index) => (
+                              <>
+                                <p className="fs-6 mb-0 fw-bold">
+                                  <small>Numéro de PDL (ou RAE)</small>
+                                </p>
+                                <div className="d-flex mb-2" key={index}>
+                                  <input
+                                    type="text"
+                                    className="form-control form-control-sm me-2"
+                                    value={inputField.value}
+                                    onChange={(event) => handleInputFieldChange(index, event)}
+                                  />
+                                  <button className="btn btn-sm" type="button" onClick={() => handleDeleteInputField(index)}><FaTrashAlt /></button>
+                                </div>
+                              </>
+                            ))
+                          }
+                          <div className="text-center">
+                            <button className="btn btn-sm btn-outline-secondary rounded-pill text-black" type="button" onClick={handleAddInputField}><span className="mx-2">+</span>Ajouter un compteur</button></div>
+                        </div>
+                      </>}
 
 
                     <div className="d-flex justify-content-between">
                       <button
                         className="btn btn-light text-black py-1 mt-3 border"
-                        onClick={() => setFormStep(formStep - 1)}
+                        onClick={() => goBack()}
                       >
-                        Previous
+                        Précédent
                       </button>
                       <button className="btn btn-dark py-1 mt-3" onClick={() => handleSixth()}>
-                        Next
+                        Suivant
                       </button>
                     </div>
                   </div>
@@ -620,146 +687,153 @@ export default function Home() {
               <>
                 <div className="col-sm-12 col-md-10 col-lg-8">
                   <div className="main-card border shadow-sm rounded p-4 mb-3">
-                    <p className="fs-4 fw-bold">
-                      Informations de mise en service
-                    </p>
-                    <p className="fs-5 mb-2">
-                      Informations pour votre compteur électrique
-                    </p>
-                    <p className="mb-0 fw-bold">Puissance compteur éléctrique souhaitée</p>
-                    <div className="radio-cont d-flex flex-column">
-                      <label htmlFor="elec-2">
-                        <input
-                          type="radio"
-                          name="electricity"
-                          id="elec-2"
-                          value="Bleu"
-                          checked={
-                            formData["electricity"] === "Bleu"
-                          }
-                          onChange={(e) => handleFromData(e)}
-                        />
-                        <div>
-                          <div>
-                            Bleu
-                            <small>
-                              BT Inférieur à 36kVA
-                            </small>
-                          </div>
+                    {/* Electric */}
+                    {(formData["energy"] === "Electricité" || formData["energy"] === "Electricité & Gaz naturel") &&
+                      <>
+                        <p className="fs-4 fw-bold">
+                          Informations de mise en service
+                        </p>
+                        <p className="fs-5 mb-2">
+                          Informations pour votre compteur électrique
+                        </p>
+                        <p className="mb-0 fw-bold">Puissance compteur éléctrique souhaitée</p>
+                        <div className="radio-cont d-flex flex-column">
+                          <label htmlFor="elec-2">
+                            <input
+                              type="radio"
+                              name="electricConsume"
+                              id="elec-2"
+                              value="Bleu"
+                              checked={
+                                formData["electricConsume"] === "Bleu"
+                              }
+                              onChange={(e) => handleFromData(e)}
+                            />
+                            <div>
+                              <div>
+                                Bleu
+                                <small>
+                                  BT Inférieur à 36kVA
+                                </small>
+                              </div>
+                            </div>
+                          </label>
+                          <label htmlFor="elec-3">
+                            <input
+                              type="radio"
+                              name="electricConsume"
+                              id="elec-3"
+                              value="Jaune"
+                              checked={
+                                formData["electricConsume"] ===
+                                "Jaune"
+                              }
+                              onChange={(e) => handleFromData(e)}
+                            />
+                            <div>
+                              <div>
+                                Jaune
+                                <small>
+                                  BT Supérieur à 36kVA
+                                </small>
+                              </div>
+                            </div>
+                          </label>
+                          <label htmlFor="elec-1">
+                            <input
+                              type="radio"
+                              name="electricConsume"
+                              id="elec-1"
+                              value="Vert"
+                              checked={
+                                formData["electricConsume"] ===
+                                "Vert"
+                              }
+                              onChange={(e) => handleFromData(e)}
+                            />
+                            <div>
+                              <div>
+                                Vert
+                                <small>
+                                  HTA
+                                </small>
+                              </div>
+                            </div>
+                          </label>
                         </div>
-                      </label>
-                      <label htmlFor="elec-3">
-                        <input
-                          type="radio"
-                          name="electricity"
-                          id="elec-3"
-                          value="Jaune"
-                          checked={
-                            formData["electricity"] ===
-                            "Jaune"
-                          }
-                          onChange={(e) => handleFromData(e)}
-                        />
-                        <div>
-                          <div>
-                            Jaune
-                            <small>
-                              BT Supérieur à 36kVA
-                            </small>
-                          </div>
-                        </div>
-                      </label>
-                      <label htmlFor="elec-1">
-                        <input
-                          type="radio"
-                          name="electricity"
-                          id="elec-1"
-                          value="Vert"
-                          checked={
-                            formData["electricity"] ===
-                            "Vert"
-                          }
-                          onChange={(e) => handleFromData(e)}
-                        />
-                        <div>
-                          <div>
-                            Vert
-                            <small>
-                              HTA
-                            </small>
-                          </div>
-                        </div>
-                      </label>
-                    </div>
-                    <p className="my-2 mt-4">Date de mise en service souhaitée des compteurs électriques</p>
-                    <Calendar className="w-100 rounded" onChange={onChange} value={value} />
+                        <p className="my-2 mt-4">Date de mise en service souhaitée des compteurs électriques</p>
+                        <Calendar className="w-100 rounded" onChange={setElecDateValue} value={elecDateValue} />
+                      </>}
                     {/* -----------Natural Gas Section */}
-                    <p className="fs-5 mt-4 mb-2">
-                      Informations pour votre compteur gaz naturel
-                    </p>
-                    <p className="mb-0 fw-bold">Consommation Annuelle de référence éstimée</p>
-                    <div className="radio-cont d-flex flex-column">
-                      <label htmlFor="gas-2">
-                        <input
-                          type="radio"
-                          name="gas"
-                          id="gas-2"
-                          value="0 - 100 MWh/an"
-                          checked={
-                            formData["gas"] === "0 - 100 MWh/an"
-                          }
-                          onChange={(e) => handleFromData(e)}
-                        />
-                        <div>
-                          0 - 100 MWh/an
+                    {(formData["energy"] === "Gaz naturel" || formData["energy"] === "Electricité & Gaz naturel") &&
+                      <>
+                        <p className="fs-5 mt-4 mb-2">
+                          Informations pour votre compteur gaz naturel
+                        </p>
+                        <p className="mb-0 fw-bold">Consommation Annuelle de référence éstimée</p>
+                        <div className="radio-cont d-flex flex-column">
+                          <label htmlFor="gas-2">
+                            <input
+                              type="radio"
+                              name="gasConsume"
+                              id="gas-2"
+                              value="0 - 100 MWh/an"
+                              checked={
+                                formData["gasConsume"] === "0 - 100 MWh/an"
+                              }
+                              onChange={(e) => handleFromData(e)}
+                            />
+                            <div>
+                              0 - 100 MWh/an
+                            </div>
+                          </label>
+                          <label htmlFor="gas-3">
+                            <input
+                              type="radio"
+                              name="gasConsume"
+                              id="gas-3"
+                              value="100 Mwh - 20 GWh/an"
+                              checked={
+                                formData["gasConsume"] ===
+                                "100 Mwh - 20 GWh/an"
+                              }
+                              onChange={(e) => handleFromData(e)}
+                            />
+                            <div>
+                              100 Mwh - 20 GWh/an
+                            </div>
+                          </label>
+                          <label htmlFor="gas-1">
+                            <input
+                              type="radio"
+                              name="gasConsume"
+                              id="gas-1"
+                              value="Supérieur à 20 GWh/an"
+                              checked={
+                                formData["gas"] ===
+                                "Supérieur à 20 GWh/an"
+                              }
+                              onChange={(e) => handleFromData(e)}
+                            />
+                            <div>
+                              Supérieur à 20 GWh/an
+                            </div>
+                          </label>
                         </div>
-                      </label>
-                      <label htmlFor="gas-3">
-                        <input
-                          type="radio"
-                          name="gas"
-                          id="gas-3"
-                          value="100 Mwh - 20 GWh/an"
-                          checked={
-                            formData["gas"] ===
-                            "100 Mwh - 20 GWh/an"
-                          }
-                          onChange={(e) => handleFromData(e)}
-                        />
-                        <div>
-                          100 Mwh - 20 GWh/an
-                        </div>
-                      </label>
-                      <label htmlFor="gas-1">
-                        <input
-                          type="radio"
-                          name="gas"
-                          id="gas-1"
-                          value="Supérieur à 20 GWh/an"
-                          checked={
-                            formData["gas"] ===
-                            "Supérieur à 20 GWh/an"
-                          }
-                          onChange={(e) => handleFromData(e)}
-                        />
-                        <div>
-                          Supérieur à 20 GWh/an
-                        </div>
-                      </label>
-                    </div>
-                    <p className="my-2 mt-4">Date de mise en service souhaitée des compteurs électriques</p>
-                    <Calendar className="w-100 rounded" onChange={onChange} value={value} />
+                        <p className="my-2 mt-4">Date de mise en service souhaitée des compteurs électriques</p>
+                        <Calendar className="w-100 rounded" onChange={setGasDateValue} value={gasDateValue} />
+                      </>}
 
 
                     <div className="d-flex justify-content-between">
                       <button
                         className="btn btn-light text-black py-1 mt-3 border"
-                        onClick={() => setFormStep(formStep - 1)}
+                        onClick={() => goBack()}
                       >
-                        Previous
+                        Précédent
                       </button>
                       <button className="btn btn-dark py-1 mt-3" onClick={() => handleSeventh()}>
-                        Next
+                        Suivant
                       </button>
                     </div>
                   </div>
@@ -872,12 +946,12 @@ export default function Home() {
                     <div className="d-flex justify-content-between">
                       <button
                         className="btn btn-light text-black py-1 mt-3 border"
-                        onClick={() => setFormStep(formStep - 1)}
+                        onClick={() => goBack()}
                       >
-                        Previous
+                        Précédent
                       </button>
                       <button className="btn btn-dark py-1 mt-3" onClick={() => handleEighth()}>
-                        Next
+                        Suivant
                       </button>
                     </div>
                   </div>
