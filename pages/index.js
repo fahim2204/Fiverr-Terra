@@ -54,8 +54,8 @@ export default function Home() {
 
   const [formData, setFormData] = useState({
     companyName: "",
-    companySiren: "",
-    companyNaf: "",
+    companyRegNo: "",
+    companyAddress: "",
     structure: "",
     energy: "",
     reason: "",
@@ -71,17 +71,17 @@ export default function Home() {
     handleFromData(e);
     if (txt.length >= 3) {
       axios
-        .get(`https://comparaison.opera-energie.com/api/v1/entreprise/suggestion/${txt}`)
+        .get(`https://societeinfo.com/app/rest/api/v2/companies.json?query=${txt}&key=9qmqfovgpchr3au6mbgeas452smldpkl5354glsblmo9vo2930b`)
         .then((x) => {
           // setProfileData(x.data);
           console.log("setProfile", x.data);
-          setCompanyDetails(x.data);
+          setCompanyDetails(x.data.result);
         })
         .catch(() => { });
     }
   };
   const selectCompany = (item) => {
-    setFormData({ ...formData, companyName: item.raisonSociale, companySiren: item.siren.libelle, companyNaf: item.codeNaf });
+    setFormData({ ...formData, companyName: item.name, companyRegNo: item.registration_number, companyAddress:item.formatted_address });
     setisError(false)
     setCompanyDetails([]);
   };
@@ -100,7 +100,7 @@ export default function Home() {
     }
   }
   const handleFirst = () => {
-    if (formData['companyName'].length < 1 || formData['companySiren'].length < 1 || formData['companyNaf'].length < 1) {
+    if (formData['companyName'].length < 1 || formData['companyRegNo'].length < 1 || formData['companyAddress'].length < 1 ) {
       setisError(true)
     } else {
       setisError(false)
@@ -241,10 +241,10 @@ export default function Home() {
                                 }}
                               >
                                 <div className="d-flex justify-content-between align-items-center">
-                                  <div className="fw-bold"><HiOutlineOfficeBuilding className="me-2 fs-4" />{item.raisonSociale}</div>
+                                  <div className="fw-bold"><HiOutlineOfficeBuilding className="me-2 fs-4" />{item.name}</div>
                                   <div className="d-flex flex-column align-items-end">
-                                    <small>{item.siren.libelle}</small>
-                                    <small className="text-danger">{item.codeNaf}</small>
+                                    <small>{item.registration_number}</small>
+                                    <small className="text-danger">{item.formatted_address}</small>
                                   </div>
                                 </div>
                               </li>
@@ -253,16 +253,16 @@ export default function Home() {
                         })}
                       </ul>
                     )}
-                    {formData["companyNaf"] !== "" && <>
+                    {formData["companyRegNo"] !== "" && <>
                       <div className="mid-text mt-4"><span className="fw-bold">Votre sélection</span></div>
                       <div className="d-flex justify-content-between">
                         <div className="d-flex flex-column">
                           <div className="">Votre SIREN</div>
-                          <div className="text-success"><small className="fw-bold">{formData["companySiren"]}</small></div>
+                          <div className="text-success"><small className="fw-bold">{formData["companyRegNo"]}</small></div>
                         </div>
                         <div className="d-flex flex-column align-items-end">
-                          <div className="">Votre Code NAF</div>
-                          <div className="text-success"><small className="fw-bold">{formData["companyNaf"]}</small></div>
+                          <div className="">Votre Address</div>
+                          <div className="text-success"><small className="fw-bold">{formData["companyAddress"]}</small></div>
                         </div>
 
                       </div>
