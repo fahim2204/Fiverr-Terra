@@ -178,3 +178,37 @@ ul.suggestion-box li:hover {
     background: #fff;
     padding: 0 10px;
 }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    transition: all 0.3s ease-in-out;
+}
+
+.pagination ul li {
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease-in-out;
+    font-weight: 600;
+}
+
+.pagination ul li .bullet {
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+    background-color: black;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease-in-out;
+}
+
+@media (max-width: 575px) {
+    .pagination ul {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        transition: all 0.3s ease-in-out;
+    }
+}

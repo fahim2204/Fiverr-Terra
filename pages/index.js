@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -7,12 +6,17 @@ import Dropzone from "react-dropzone";
 import { FaTrashAlt, FiDelete } from "react-icons/fa";
 import { HiOutlineOfficeBuilding } from "react-icons/hi"
 import { FcAddImage, FcFile } from "react-icons/fc";
+import { GiCheckMark } from "react-icons/gi";
 import Calendar from 'react-calendar';
+import { toast, ToastContainer } from 'react-toastify';
+import { InfinitySpin } from 'react-loader-spinner'
+
 
 export default function Home() {
-
   const [elecDateValue, setElecDateValue] = useState(new Date());
   const [gasDateValue, setGasDateValue] = useState(new Date());
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     setFormData({ ...formData, ["electricityDate"]: Date.parse(elecDateValue) });
   }, [elecDateValue])
@@ -71,11 +75,8 @@ export default function Home() {
     }
   }
 
-
-
   const totalStep = 9;
   const [formStep, setFormStep] = useState(1);
-  const [formQues, setFormQues] = useState(1);
   const [companyDetails, setCompanyDetails] = useState([]);
 
   const [formData, setFormData] = useState({
@@ -330,9 +331,64 @@ export default function Home() {
   const handleSubmit = () => {
     if (formData['dataprivacy'].length < 1 || !formData['agree']) {
       setisError(true)
-    }else{
-      axios.post("/api/terra",formData).then((e)=>{console.log(e)}).catch((e)=>{console.log(e)})
+    } else {
+      setIsLoading(true)
+      axios.post("/api/terra", formData).then(() => {
+        showSubmitSuccess();
+        setFormData({
+          companyName: "",
+          companyRegNo: "",
+          companyAddress: "",
+          structure: "",
+          energy: "",
+          reason: "",
+          electricityDate: "",
+          gasDate: "",
+          electricConsume: "",
+          gasConsume: "",
+          electricMeterNo: [""],
+          gasMeterNo: [""],
+          electricBillDoc: {
+            docName: "",
+            docData: "",
+          },
+          gasBillDoc: {
+            docName: "",
+            docData: "",
+          },
+          gender: "",
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          dataprivacy: "",
+          agree: false,
+        })
+        setIsLoading(false)
+        setFormStep(1)
+      }).catch(() => {
+        showSubmitFailed()
+        setIsLoading(false)
+      })
     }
+  }
+  const showSubmitSuccess = () => {
+    toast.success('Your form has been submitted successfully', {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 2000
+    });
+  }
+  const showSubmitFailed = () => {
+    toast.error('Sorry!! Something went wrong!', {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: false,
+      progress: undefined,
+      theme: "light",
+    });
   }
 
   return (
@@ -344,6 +400,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
+        <ToastContainer />
         <div style={{ "--progessWidth": `${formStep * (100 / totalStep)}%` }} className="progess-bar"></div>
         <nav class="border-bottom py-2">
           <Link href="/" className="fw-bold fs-3 px-2">
@@ -351,22 +408,22 @@ export default function Home() {
           </Link>
         </nav>
         <div className="row mt-4">
-          <div className="col-12 col-sm-3">
-            <ul className="list-unstyled ps-3 d-flex flex-column">
+          <div className="col-12 col-sm-3 pagination">
+            <ul className="list-unstyled ps-3">
               <li className="my-2">
-                <span className="rounded-circle py-1 px-2 bg-black text-white">1</span>
+                <div className="bullet">{formStep > 2 ? <GiCheckMark /> : "1"}</div>
                 <span className="ms-2">Your Identity</span>
               </li>
               <li className="my-2">
-                <span className="rounded-circle py-1 px-2 bg-black text-white">2</span>
+                <div className="bullet">{formStep > 5 ? <GiCheckMark /> : "2"}</div>
                 <span className="ms-2">Your needs</span>
               </li>
               <li className="my-2">
-                <span className="rounded-circle py-1 px-2 bg-black text-white">3</span>
+                <div className="bullet">{formStep > 7 ? <GiCheckMark /> : "3"}</div>
                 <span className="ms-2">Your meters</span>
               </li>
               <li className="my-2">
-                <span className="rounded-circle py-1 px-2 bg-black text-white">4</span>
+                <div className="bullet">4</div>
                 <span className="ms-2">Your infomation</span>
               </li>
             </ul>
@@ -1230,8 +1287,8 @@ export default function Home() {
                       </label>
                     </div>
                     <div class="form-check mt-3">
-                      <input className="form-check-input" type="checkbox" se id="agree" name="agree" checked={formData["agree"]} onChange={() => setFormData({ ...formData, agree: !formData["agree"] })} />
                       <label class="form-check-label user-select-none" hmtlFor="agree">
+                        <input className="form-check-input" type="checkbox" se id="agree" name="agree" checked={formData["agree"]} onChange={() => setFormData({ ...formData, agree: !formData["agree"] })} />
                         Je suis d'accord avec ces <span className="border-bottom cursor-pointer" data-bs-toggle="modal" data-bs-target="#termsModal">termes et conditions</span>.
                       </label>
                     </div>
@@ -1282,6 +1339,12 @@ export default function Home() {
                         </div>
                       </div>
                     </div>
+                    {isLoading && <div className='d-flex justify-content-center'>
+                      <InfinitySpin
+                        width='200'
+                        color="#4fa94d"
+                      />
+                    </div>}
 
                     <div className="d-flex justify-content-between">
                       <button
@@ -1290,7 +1353,7 @@ export default function Home() {
                       >
                         Précédent
                       </button>
-                      <button className="btn btn-dark py-1 mt-3" onClick={() => handleSubmit()}>
+                      <button disabled={isLoading} className="btn btn-dark py-1 mt-3" onClick={() => handleSubmit()}>
                         Suivant
                       </button>
                     </div>
