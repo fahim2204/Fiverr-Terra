@@ -99,6 +99,15 @@ export default function Home() {
       docName: "",
       docData: "",
     },
+    gender: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    dataprivacy: "",
+    agree: false,
+
+
   });
   const [isError, setisError] = useState(false);
 
@@ -165,7 +174,7 @@ export default function Home() {
     }
   }
   const handleFirst = () => {
-    if (formData['companyName'].length < 1 || formData['companyRegNo'].length < 1 || formData['companyAddress'].length < 1 ) {
+    if (formData['companyName'].length < 1 || formData['companyRegNo'].length < 1 || formData['companyAddress'].length < 1) {
       setisError(true)
     } else {
       setisError(false)
@@ -278,20 +287,55 @@ export default function Home() {
     }
   };
   const handleSeventh = () => {
-    setFormStep(8);
+    if (formData['energy'] === "Electricité & Gaz naturel") {
+      if (formData['electricityDate'].length < 1 || formData['electricConsume'].length < 1 || formData['gasDate'].length < 1 || formData['gasConsume'].length < 1) {
+        setisError(true)
+      } else {
+        setFormStep(8);
+        setisError(false)
+      }
+    }
+    else if (formData['energy'] === "Gaz naturel") {
+      if (formData['gasDate'].length < 1 || formData['gasConsume'].length < 1) {
+        setisError(true)
+      } else {
+        setFormStep(8);
+        setisError(false)
+      }
+    }
+    else {
+      if (formData['electricityDate'].length < 1 || formData['electricConsume'].length < 1) {
+        setisError(true)
+      } else {
+        setFormStep(8);
+        setisError(false)
+      }
+    }
   };
   const handleEighth = () => {
-    setFormStep(9);
+    if (formData['gender'].length < 1 || formData['firstName'].length < 3 || formData['lastName'].length < 3 || !formData['email'].match(
+      /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    ) || formData['phone'].length < 5) {
+      setisError(true)
+    } else {
+      setFormStep(9);
+      setisError(false)
+    }
+
   };
-  const handleMeterDate = (date, str) => {
-    let formattedDate = `${date.getMonth() + 1
-      }/${date.getDate()}/${date.getFullYear()}`;
-    setFormData({ ...formData, [str]: formattedDate });
-  }
+
   const handleFromData = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setisError(false)
   };
+
+  const handleSubmit = () => {
+    if (formData['dataprivacy'].length < 1 || !formData['agree']) {
+      setisError(true)
+    }else{
+      // TODO call API
+    }
+  }
 
   return (
     <>
@@ -1000,6 +1044,8 @@ export default function Home() {
                         <Calendar className="w-100 rounded" onChange={setGasDateValue} value={gasDateValue} />
                       </>}
 
+                    {isError && <p className="text-danger my-2"><small>Veuillez sélectionner une option</small></p>}
+
 
                     <div className="d-flex justify-content-between">
                       <button
@@ -1096,12 +1142,13 @@ export default function Home() {
                     </label>
                     <input
                       type="email"
-                      class={`form-control ${formData["email"] === "" ? "is-invalid" : "is-valid"
+                      class={`form-control ${!formData["email"].match(
+                        /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                      ) ? "is-invalid" : "is-valid"
                         }`}
                       name="email"
                       onChange={(e) => handleFromData(e)}
                       value={formData["email"]}
-                      autoComplete="off"
                       id="email"
                       required
                     />
@@ -1119,6 +1166,11 @@ export default function Home() {
                       id="phone"
                       required
                     />
+
+                    {isError && <p className="text-danger my-2"><small>
+                      Veuillez saisir tous les champs correctement</small></p>}
+
+
                     <div className="d-flex justify-content-between">
                       <button
                         className="btn btn-light text-black py-1 mt-3 border"
@@ -1180,11 +1232,12 @@ export default function Home() {
                       </label>
                     </div>
                     <div class="form-check mt-3">
-                      <input className="form-check-input" type="checkbox" id="agree" name="agree" required />
+                      <input className="form-check-input" type="checkbox" se id="agree" name="agree" checked={formData["agree"]} onChange={() => setFormData({ ...formData, agree: !formData["agree"] })} />
                       <label class="form-check-label user-select-none" hmtlFor="agree">
                         Je suis d'accord avec ces <span className="border-bottom cursor-pointer" data-bs-toggle="modal" data-bs-target="#termsModal">termes et conditions</span>.
                       </label>
                     </div>
+                    {isError && <p className="text-danger my-2"><small>Veuillez sélectionner une option</small></p>}
 
                     {/* <!-- Modal --> */}
                     <div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsModalLabel" aria-hidden="true">
@@ -1232,13 +1285,18 @@ export default function Home() {
                       </div>
                     </div>
 
-
-                    <div className="d-flex justify-content-end">
-
+                    <div className="d-flex justify-content-between">
+                      <button
+                        className="btn btn-light text-black py-1 mt-3 border"
+                        onClick={() => goBack()}
+                      >
+                        Précédent
+                      </button>
                       <button className="btn btn-dark py-1 mt-3" onClick={() => handleSubmit()}>
                         Suivant
                       </button>
                     </div>
+
                   </div>
                 </div>
               </>
