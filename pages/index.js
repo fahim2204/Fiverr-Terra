@@ -106,8 +106,6 @@ export default function Home() {
     phone: "",
     dataprivacy: "",
     agree: false,
-
-
   });
   const [isError, setisError] = useState(false);
 
@@ -243,7 +241,7 @@ export default function Home() {
         }
       }
       else if (formData['energy'] === "Gaz naturel") {
-        if (formData['electricMeterNo'][0].length < 1) {
+        if (formData['gasMeterNo'][0].length < 1) {
           setisError(true)
         } else {
           setFormStep(8);
@@ -269,7 +267,7 @@ export default function Home() {
         }
       }
       else if (formData['energy'] === "Gaz naturel") {
-        if (formData['electricMeterNo'][0].length < 1) {
+        if (formData['gasMeterNo'][0].length < 1) {
           setisError(true)
         } else {
           setFormStep(7);
@@ -333,7 +331,7 @@ export default function Home() {
     if (formData['dataprivacy'].length < 1 || !formData['agree']) {
       setisError(true)
     }else{
-      // TODO call API
+      axios.post("/api/terra",formData).then((e)=>{console.log(e)}).catch((e)=>{console.log(e)})
     }
   }
 
